@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Quiz App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        /* Answer Animation Styles */
+        .animation-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            text-align: center;
+            z-index: 10;
+            display: none;
+            width: 280px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .animation-emoji {
+            font-size: 80px;
+            margin-bottom: 10px;
+        }
+        
+        .explanation-text {
+            font-size: 18px;
+            margin-top: 15px;
+            font-weight: 500;
+            color: #555;
+            max-width: 280px;
+        }
+        
+        .animation-visible {
+            display: block;
+            animation: pop-fade-in 0.5s ease-out forwards;
+        }
+        
+        @keyframes pop-fade-in {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        /* Countdown Timer Styles */
+        .countdown-container {
+            margin-top: 15px;
+            width: 100%;
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .countdown-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #6fcf97, #4a6ee0);
+            border-radius: 10px;
+            transition: width 0.1s linear;
+        }
+        
+        .countdown-numbers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        
+        .countdown-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #4a6ee0;
+            border-radius: 50%;
+            margin-top: 8px;
+            position: relative;
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+        
+        .countdown-dot.active {
+            opacity: 1;
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(74, 110, 224, 0.5);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #4a6ee0;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 25px;
+            color: #666;
+        }
+
+        p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background-color: #4a6ee0;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+            margin: 10px 5px;
+            min-width: 200px;
+        }
+
+        .btn:hover {
+            background-color: #3a5dcc;
+            transform: translateY(-3px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background-color: #6fcf97;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5eb585;
+        }
+
+        /* Screen-specific styles */
+        
+        /* 1. Start Quiz Screen */
+        .start-screen img {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-info {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0 30px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 15px;
+        }
+
+        .info-item .value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #4a6ee0;
+        }
+
+        .info-item .label {
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* 2. Question Screen */
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #4a6ee0;
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+
+        .question-count {
+            text-align: left;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            background-color: #f0f4fe;
+            border: 2px solid #e1e8ff;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            background-color: #e1e8ff;
+            transform: translateY(-2px);
+        }
+
+        .option-prefix {
+            background-color: #4a6ee0;
+            color: white;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .option-text {
+            font-size: 16px;
+        }
+
+        .option.correct {
+            background-color: #d7ffe0;
+            border-color: #6fcf97;
+            animation: pulse-green 0.5s;
+        }
+
+        .option.correct .option-prefix {
+            background-color: #6fcf97;
+        }
+
+        .option.incorrect {
+            background-color: #ffe7e7;
+            border-color: #ff7c7c;
+            animation: shake 0.5s;
+        }
+
+        .option.incorrect .option-prefix {
+            background-color: #ff7c7c;
+        }
+
+        @keyframes pulse-green {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        /* 3. Mid-Test Popup */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            text-align: center;
+            max-width: 300px;
+            animation: popup-appear 0.3s forwards;
+        }
+
+        .popup h3 {
+            color: #4a6ee0;
+            margin-bottom: 15px;
+        }
+
+        .popup-btn {
+            background-color: #4a6ee0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            animation: fade-in 0.3s forwards;
+        }
+
+        @keyframes popup-appear {
+            from { transform: translate(-50%, -60%); opacity: 0; }
+            to { transform: translate(-50%, -50%); opacity: 1; }
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 4. Quiz Completion Screen */
+        .completion-screen {
+            text-align: center;
+        }
+
+        .trophy-icon {
+            font-size: 60px;
+            margin: 20px 0;
+        }
+
+        .score-display {
+            font-size: 24px;
+            font-weight: 600;
+            color: #4a6ee0;
+            margin-bottom: 20px;
+        }
+
+        .feedback-box {
+            background-color: #f0f4fe;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .feedback-box h3 {
+            font-size: 18px;
+            color: #4a6ee0;
+            margin-bottom: 10px;
+        }
+
+        .feedback-box ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .feedback-box li {
+            margin-bottom: 5px;
+        }
+
+        .badge {
+            font-size: 40px;
+            margin: 20px 0;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* 5. Progress Dashboard */
+        .dashboard {
+            text-align: center;
+        }
+
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background-color: #f0f4fe;
+            border-radius: 15px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4a6ee0;
+            margin: 8px 0;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .badges-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .badge-item {
+            background-color: #f0f4fe;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .quote-box {
+            background-color: #fffbdb;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .quote-text {
+            font-style: italic;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .question-text {
+                font-size: 20px;
+            }
+
+            .btn {
+                padding: 14px 25px;
+                font-size: 16px;
+                min-width: 180px;
+            }
+
+            .stat-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Hide all screens initially */
+        .screen {
+            display: none;
+        }
+
+        /* Show active screen */
+        .screen.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- 1. Start Quiz Screen -->
+    <div class="container screen start-screen active" id="start-screen">
+        <img src="/api/placeholder/150/150" alt="Quiz Logo">
+        <h1>Ready to Challenge Yourself?</h1>
+        <h2>Let's test your knowledge!</h2>
+        
+        <div class="quiz-info">
+            <div class="info-item">
+                <span class="value">10</span>
+                <span class="label">Questions</span>
+            </div>
+            <div class="info-item">
+                <span class="value">5</span>
+                <span class="label">Minutes</span>
+            </div>
+            <div class="info-item">
+                <span class="value">₹10</span>
+                <span class="label">Price</span>
+            </div>
+        </div>
+        
+        <button class="btn" onclick="showScreen('question-screen')">Start Quiz</button>
+    </div>
+
+    <!-- 2. Question Screen -->
+    <div class="container screen question-screen" id="question-screen">
+        <div class="question-count">Question <span id="current-question">1</span> of 10</div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar" style="width: 10%;"></div>
+        </div>
+        
+        <div class="question-text" id="question-text">
+            What is the capital of France?
+        </div>
+        
+        <div class="options-container" id="options-container">
+            <div class="option" onclick="selectOption(this, true)">
+                <div class="option-prefix">A</div>
+                <div class="option-text">Paris</div>
+            </div>
+            <div class="option" onclick="selectOption(this, false)">
+                <div class="option-prefix">B</div>
+                <div class="option-text">London</div>
+            </div>
+            <div class="option" onclick="selectOption(this, false)">
+                <div class="option-prefix">C</div>
+                <div class="option-text">Berlin</div>
+            </div>
+            <div class="option" onclick="selectOption(this, false)">
+                <div class="option-prefix">D</div>
+                <div class="option-text">Rome</div>
+            </div>
+        </div>
+        
+        <div id="animation-container" class="animation-container">
+            <div class="animation-emoji">🗼</div>
+            <div class="explanation-text">That's right! Paris is the City of Light and France's capital!</div>
+            <div class="countdown-container">
+                <div id="countdown-bar" class="countdown-bar"></div>
+            </div>
+            <div class="countdown-numbers">
+                <div id="countdown-dot-1" class="countdown-dot active"></div>
+                <div id="countdown-dot-2" class="countdown-dot"></div>
+                <div id="countdown-dot-3" class="countdown-dot"></div>
+                <div id="countdown-dot-4" class="countdown-dot"></div>
+                <div id="countdown-dot-5" class="countdown-dot"></div>
+            </div>
+        </div>
+        
+        <button id="finish-button" class="btn" onclick="showScreen('completion-screen')" style="display: none;">Finish Quiz</button>
+    </div>
+
+    <!-- 3. Mid-Test Popup -->
+    <div id="popup-container" style="display: none;">
+        <div class="overlay"></div>
+        <div class="popup">
+            <h3>Halfway there! 🚀</h3>
+            <p>Keep Going! You're doing great!</p>
+            <button class="popup-btn" onclick="closePopup()">Continue</button>
+        </div>
+    </div>
+
+    <!-- 4. Quiz Completion Screen -->
+    <div class="container screen completion-screen" id="completion-screen">
+        <div class="trophy-icon">🏆</div>
+        <h1>Well Done, Champion!</h1>
+        <div class="score-display">You got <span id="correct-answers">8</span> out of 10 correct!</div>
+        
+        <div class="feedback-box">
+            <h3>Strong Areas:</h3>
+            <ul>
+                <li>Science questions</li>
+                <li>Math calculations</li>
+            </ul>
+        </div>
+        
+        <div class="feedback-box">
+            <h3>Areas to Improve:</h3>
+            <ul>
+                <li>History questions</li>
+                <li>Geography locations</li>
+            </ul>
+        </div>
+        
+        <div class="badge">🥇</div>
+        
+        <div class="buttons-container">
+            <button class="btn" onclick="showScreen('start-screen')">Take Another Test</button>
+            <button class="btn btn-secondary" onclick="showScreen('dashboard-screen')">View My Progress</button>
+        </div>
+    </div>
+
+    <!-- 5. Mini Progress Dashboard -->
+    <div class="container screen dashboard-screen" id="dashboard-screen">
+        <h1>Student Progress</h1>
+        <h2>Keep up the great work!</h2>
+        
+        <div class="stat-cards">
+            <div class="stat-card">
+                <span class="stat-label">Total Tests</span>
+                <span class="stat-value">12</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Average Score</span>
+                <span class="stat-value">85%</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Badges</span>
+                <span class="stat-value">5</span>
+            </div>
+        </div>
+        
+        <h3>Your Badges</h3>
+        <div class="badges-container">
+            <div class="badge-item">🥇</div>
+            <div class="badge-item">🏆</div>
+            <div class="badge-item">⭐</div>
+            <div class="badge-item">🎓</div>
+            <div class="badge-item">🚀</div>
+        </div>
+        
+        <div class="quote-box">
+            <p class="quote-text">Keep Learning, Little Genius! 💡</p>
+        </div>
+        
+        <button class="btn" onclick="showScreen('start-screen')">Take Another Quiz</button>
+    </div>
+
+    <script>
+        // Quiz questions data
+        const quizQuestions = [
+            {
+                question: "What is the capital of France?",
+                options: ["Paris", "London", "Berlin", "Rome"],
+                correctIndex: 0,
+                correctAnimation: "🗼",
+                incorrectAnimation: "❌",
+                correctExplanation: "That's right! Paris is the City of Light and France's capital!",
+                incorrectExplanation: "Not quite! Paris is the beautiful capital of France."
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                options: ["Venus", "Mars", "Jupiter", "Saturn"],
+                correctIndex: 1,
+                correctAnimation: "🔴",
+                incorrectAnimation: "🪐",
+                correctExplanation: "Excellent! Mars gets its reddish color from iron oxide!",
+                incorrectExplanation: "Almost! Mars is called the Red Planet due to its rusty surface."
+            },
+            {
+                question: "What is 7 × 8?",
+                options: ["54", "56", "63", "64"],
+                correctIndex: 1,
+                correctAnimation: "🧮",
+                incorrectAnimation: "🤔",
+                correctExplanation: "Perfect math skills! 7 × 8 is indeed 56!",
+                incorrectExplanation: "Keep practicing! 7 × 8 equals 56."
+            },
+            {
+                question: "Which animal is known as the 'King of the Jungle'?",
+                options: ["Tiger", "Elephant", "Lion", "Gorilla"],
+                correctIndex: 2,
+                correctAnimation: "🦁",
+                incorrectAnimation: "🐯",
+                correctExplanation: "You got it! Lions are known as the kings of the jungle!",
+                incorrectExplanation: "Not this time! Lions hold the title of 'King of the Jungle'."
+            },
+            {
+                question: "How many sides does a pentagon have?",
+                options: ["4", "5", "6", "7"],
+                correctIndex: 1,
+                correctAnimation: "5️⃣",
+                incorrectAnimation: "📐",
+                correctExplanation: "Great geometry knowledge! A pentagon has 5 sides!",
+                incorrectExplanation: "Remember: 'penta' means five - a pentagon has 5 sides."
+            },
+            {
+                question: "Which of these is not a primary color?",
+                options: ["Red", "Blue", "Green", "Yellow"],
+                correctIndex: 3,
+                correctAnimation: "🎨",
+                incorrectAnimation: "🌈",
+                correctExplanation: "You know your colors! Yellow is a secondary color!",
+                incorrectExplanation: "Primary colors are red, blue and green - yellow is secondary."
+            },
+            {
+                question: "What is the largest mammal on Earth?",
+                options: ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"],
+                correctIndex: 1,
+                correctAnimation: "🐋",
+                incorrectAnimation: "🐘",
+                correctExplanation: "Exactly! Blue whales are the largest animals ever known!",
+                incorrectExplanation: "The blue whale is even bigger - it's the largest animal ever!"
+            },
+            {
+                question: "Which country is home to the kangaroo?",
+                options: ["New Zealand", "South Africa", "Australia", "Brazil"],
+                correctIndex: 2,
+                correctAnimation: "🦘",
+                incorrectAnimation: "🌍",
+                correctExplanation: "Spot on! Kangaroos are native to Australia!", 
+                incorrectExplanation: "Kangaroos hop around Australia - they're native there!"
+            },
+            {
+                question: "What is the chemical formula for water?",
+                options: ["CO2", "H2O", "O2", "NaCl"],
+                correctIndex: 1,
+                correctAnimation: "💧",
+                incorrectAnimation: "🧪",
+                correctExplanation: "Perfect chemistry! H2O is indeed water!",
+                incorrectExplanation: "Remember: H2O represents two hydrogen atoms and one oxygen."
+            },
+            {
+                question: "Which scientist proposed the theory of relativity?",
+                options: ["Isaac Newton", "Galileo Galilei", "Albert Einstein", "Stephen Hawking"],
+                correctIndex: 2,
+                correctAnimation: "🧠",
+                incorrectAnimation: "📚",
+                correctExplanation: "Brilliant! Einstein gave us the theory of relativity!",
+                incorrectExplanation: "Einstein developed this groundbreaking theory in 1915."
+            }
+        ];
+        
+        // Variables to track quiz state
+        let currentQuestion = 1;
+        let correctAnswers = 0;
+        let totalQuestions = 10;
+        
+        // Function to show a specific screen
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show the requested screen
+            document.getElementById(screenId).classList.add('active');
+            
+            // Reset question if going back to start
+            if (screenId === 'start-screen') {
+                resetQuiz();
+            }
+            
+            // Show mid-test popup after 5th question
+            if (screenId === 'question-screen' && currentQuestion === 5) {
+                setTimeout(showPopup, 500);
+            }
+            
+            // Update completion screen data
+            if (screenId === 'completion-screen') {
+                document.getElementById('correct-answers').textContent = correctAnswers;
+            }
+            
+            // If showing question screen, load the current question
+            if (screenId === 'question-screen') {
+                loadQuestion(currentQuestion);
+            }
+        }
+        
+        // Function to load a question
+        function loadQuestion(questionNumber) {
+            const questionData = quizQuestions[questionNumber - 1];
+            
+            // Update question text
+            document.getElementById('question-text').textContent = questionData.question;
+            
+            // Update options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            questionData.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.onclick = function() { 
+                    selectOption(this, index === questionData.correctIndex, questionData);
+                };
+                
+                const prefixElement = document.createElement('div');
+                prefixElement.className = 'option-prefix';
+                prefixElement.textContent = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const textElement = document.createElement('div');
+                textElement.className = 'option-text';
+                textElement.textContent = option;
+                
+                optionElement.appendChild(prefixElement);
+                optionElement.appendChild(textElement);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Hide finish button on non-last questions
+            document.getElementById('finish-button').style.display = 'none';
+            
+            // Update progress
+            document.getElementById('current-question').textContent = questionNumber;
+            document.getElementById('progress-bar').style.width = (questionNumber / totalQuestions * 100) + '%';
+        }
+        
+        // Function to display answer animation and explanation with countdown
+        function showAnswerAnimation(animation, explanation) {
+            const container = document.getElementById('animation-container');
+            
+            // Clear previous content but keep countdown elements
+            const countdownContainer = document.querySelector('.countdown-container');
+            const countdownNumbers = document.querySelector('.countdown-numbers');
+            container.innerHTML = '';
+            
+            // Add the emoji
+            const emojiElement = document.createElement('div');
+            emojiElement.className = 'animation-emoji';
+            emojiElement.textContent = animation;
+            
+            // Add explanation text
+            const explanationElement = document.createElement('div');
+            explanationElement.className = 'explanation-text';
+            explanationElement.textContent = explanation;
+            
+            // Recreate countdown elements
+            const newCountdownContainer = document.createElement('div');
+            newCountdownContainer.className = 'countdown-container';
+            const countdownBar = document.createElement('div');
+            countdownBar.id = 'countdown-bar';
+            countdownBar.className = 'countdown-bar';
+            newCountdownContainer.appendChild(countdownBar);
+            
+            // Recreate dots
+            const newCountdownNumbers = document.createElement('div');
+            newCountdownNumbers.className = 'countdown-numbers';
+            
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.createElement('div');
+                dot.id = `countdown-dot-${i}`;
+                dot.className = 'countdown-dot';
+                if (i === 1) dot.classList.add('active');
+                newCountdownNumbers.appendChild(dot);
+            }
+            
+            // Append all elements to container
+            container.appendChild(emojiElement);
+            container.appendChild(explanationElement);
+            container.appendChild(newCountdownContainer);
+            container.appendChild(newCountdownNumbers);
+            
+            // Show animation
+            container.classList.add('animation-visible');
+            
+            // Start countdown
+            startCountdown(5);
+        }
+        
+        // Function to handle countdown animation
+        function startCountdown(seconds) {
+            const countdownBar = document.getElementById('countdown-bar');
+            const totalTime = seconds * 1000;
+            const interval = 100; // Update every 100ms for smooth animation
+            let timeLeft = totalTime;
+            
+            // Reset countdown bar
+            countdownBar.style.width = '100%';
+            
+            // Reset dots
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.getElementById(`countdown-dot-${i}`);
+                dot.classList.remove('active');
+                if (i === 1) dot.classList.add('active');
+            }
+            
+            // Create countdown interval
+            const countdownInterval = setInterval(() => {
+                timeLeft -= interval;
+                const percentLeft = (timeLeft / totalTime) * 100;
+                countdownBar.style.width = percentLeft + '%';
+                
+                // Update active dot based on time left
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('animation-container').classList.remove('animation-visible');
+                    return;
+                }
+                
+                // Update the active dot
+                const dotToActivate = Math.ceil((timeLeft / totalTime) * 5);
+                for (let i = 1; i <= 5; i++) {
+                    const dot = document.getElementById(`countdown-dot-${i}`);
+                    dot.classList.remove('active');
+                    if (i === dotToActivate) dot.classList.add('active');
+                }
+                
+            }, interval);
+        }
+        
+        // Function to select an option
+        function selectOption(optionElement, isCorrect, questionData) {
+            // Disable all options
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            // Add correct/incorrect class
+            if (isCorrect) {
+                optionElement.classList.add('correct');
+                correctAnswers++;
+                showAnswerAnimation(questionData.correctAnimation, questionData.correctExplanation);
+            } else {
+                optionElement.classList.add('incorrect');
+                showAnswerAnimation(questionData.incorrectAnimation, questionData.incorrectExplanation);
+                
+                // Find and highlight the correct answer
+                options.forEach((option, index) => {
+                    if (index === questionData.correctIndex) {
+                        option.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Show finish button on last question
+            if (currentQuestion === totalQuestions) {
+                setTimeout(() => {
+                    document.getElementById('finish-button').style.display = 'block';
+                }, 2000);
+                return;
+            }
+            
+            // Move to next question after delay
+            setTimeout(() => {
+                currentQuestion++;
+                
+                if (currentQuestion <= totalQuestions) {
+                    // Load the next question
+                    loadQuestion(currentQuestion);
+                    
+                    // Show popup at halfway point (question 5)
+                    if (currentQuestion === 6) {
+                        showPopup();
+                    }
+                } else {
+                    // End of quiz
+                    showScreen('completion-screen');
+                }
+            }, 3000);  // Increased delay to give time to read explanation
+        }
+        
+        // Function to show mid-test popup
+        function showPopup() {
+            document.getElementById('popup-container').style.display = 'block';
+            
+            // Auto-close after 2 seconds
+            setTimeout(closePopup, 2000);
+        }
+        
+        // Function to close popup
+        function closePopup() {
+            document.getElementById('popup-container').style.display = 'none';
+        }
+        
+        // Function to reset quiz
+        function resetQuiz() {
+            currentQuestion = 1;
+            correctAnswers = 0;
+            
+            // Load first question
+            loadQuestion(currentQuestion);
+        }
+        
+        // Initialize the first question when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the first question data
+            if (document.getElementById('question-screen').classList.contains('active')) {
+                loadQuestion(1);
+            }
+        });
+    </script>
+</body>
+</html>
