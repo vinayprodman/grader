@@ -1,13 +1,17 @@
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useContext, useEffect, useState } from "react";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   signInWithPopup,
-  onAuthStateChanged
+  onAuthStateChanged,
 } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
+import { auth, googleProvider, db } from "../firebase"; // Assuming db is your Firestore instance
 import { useNavigate } from "react-router-dom";
+import { doc, getDoc, setDoc } from "firebase/firestore"; // Firestore functions
+import CompleteProfile from "../components/auth/CompleteProfile";
 
 // Types
 interface User {
@@ -22,7 +26,13 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string, age: number, grade: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    name: string,
+    age: number,
+    grade: string
+  ) => Promise<void>;
   logout: () => void;
   googleSignIn: () => Promise<void>;
 }
@@ -32,32 +42,41 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 // Auth provider component
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Restore user from localStorage on load
+  // Restore user from Firestore on load
   useEffect(() => {
-    const storedUser = localStorage.getItem('graderUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setLoading(false);
-    }
-    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // If user is logged in via Firebase, update user info
-        const userInfo: User = {
-          id: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          name: firebaseUser.displayName || '',
-          age: 0,
-          grade: ''
-        };
-        setUser(userInfo);
-        localStorage.setItem('graderUser', JSON.stringify(userInfo));
+        // Check Firestore for existing user data
+        const userRef = doc(db, "users", firebaseUser.uid);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const userInfo: User = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email || "",
+            name: userData.name || "",
+            age: userData.age || 0,
+            grade: userData.grade || "",
+          };
+          setUser(userInfo);
+        } else {
+          // If no user data, initialize empty data
+          const userInfo: User = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email || "",
+            name: firebaseUser.displayName || "",
+            age: 0,
+            grade: "",
+          };
+          setUser(userInfo);
+        }
       } else {
         setUser(null);
-        localStorage.removeItem('graderUser');
       }
       setLoading(false);
     });
@@ -67,59 +86,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string) => {
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
-      // Try to get extra info from localStorage if available
-      const stored = localStorage.getItem('graderUser');
-      let extra: Partial<User> = {};
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (parsed && parsed.id === res.user.uid) {
-            extra = { name: parsed.name, age: parsed.age, grade: parsed.grade };
-          }
-        } catch {}
+      // Check Firestore for additional user info
+      const userRef = doc(db, "users", res.user.uid);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const userInfo: User = {
+          id: res.user.uid,
+          email: res.user.email || "",
+          name: userData.name || "",
+          age: userData.age || 0,
+          grade: userData.grade || "",
+        };
+        setUser(userInfo);
+        navigate("/");
+      } else {
+        // If no additional user info exists, navigate to profile completion
+        navigate("/complete-profile");
       }
-      const userInfo: User = {
-        id: res.user.uid,
-        email: res.user.email || '',
-        name: extra.name || res.user.displayName || '',
-        age: typeof extra.age === 'number' ? extra.age : 0,
-        grade: extra.grade || ''
-      };
-      setUser(userInfo);
-      localStorage.setItem('graderUser', JSON.stringify(userInfo));
-      navigate('/');
     } catch (err: any) {
       alert(err.message);
-      navigate('/login');
+      navigate("/login");
     }
   };
 
-  const register = async (email: string, password: string, name: string, age: number, grade: string) => {
+  const register = async (
+    email: string,
+    password: string,
+    name: string,
+    age: number,
+    grade: string
+  ): Promise<any> => { // Now it returns a value instead of void
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
-      const userInfo: User = {
-        id: res.user.uid,
-        email: res.user.email || '',
-        name: name,
-        age: typeof age === 'number' ? age : 0,
-        grade: grade
-      };
-      setUser(userInfo);
-      localStorage.setItem('graderUser', JSON.stringify(userInfo));
-      alert('Registration Successful');
-      navigate('/');
+  
+  
+      // Save user info to Firestore
+      await setDoc(doc(db, "users", res.user.uid), {
+        name,
+        age,
+        grade,
+      });
+  
+      alert("Registration Successful");
+      navigate("/");
+  
+      return res; // Return user credential object
     } catch (err: any) {
       alert(err.message);
-      navigate('/signup');
+      navigate("/signup");
+      return null; // Return null or handle the error appropriately
     }
   };
+  
 
   const logout = async () => {
     try {
       await signOut(auth);
       setUser(null);
-      localStorage.removeItem('graderUser');
-      navigate('/login');
+      navigate("/login");
     } catch (err: any) {
       alert(err.message);
     }
@@ -130,22 +155,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const res = await signInWithPopup(auth, googleProvider);
       const userInfo: User = {
         id: res.user.uid,
-        email: res.user.email || '',
-        name: res.user.displayName || '',
-        age: 0,
-        grade: ''
+        email: res.user.email || "",
+        name: res.user.displayName || "",
+        age: 0, // Default value, will be updated from modal
+        grade: "", // Default value, will be updated from modal
       };
+
       setUser(userInfo);
-      localStorage.setItem('graderUser', JSON.stringify(userInfo));
-      navigate('/');
+      setModalOpen(true); // Open modal for age and grade
     } catch (err: any) {
       alert(err.message);
     }
   };
 
+  const handleProfileSubmit = async (age: string, grade: string) => {
+    if (user) {
+      const updatedUser = {
+        ...user,
+        age: parseInt(age || "0", 10),
+        grade: grade || "",
+      };
+
+      // Update user info in Firestore
+      await setDoc(doc(db, "users", user.id), {
+        age: updatedUser.age,
+        grade: updatedUser.grade,
+      });
+
+      setUser(updatedUser);
+      setModalOpen(false); // Close the modal after submitting
+      navigate("/");
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, googleSignIn }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, register, logout, googleSignIn }}
+    >
       {!loading && children}
+
+      {/* CompleteProfile Modal */}
+      <CompleteProfile
+        open={modalOpen}
+        onClose={() => setModalOpen(false)} // Close modal on click
+        onSubmit={handleProfileSubmit}
+      />
     </AuthContext.Provider>
   );
 };

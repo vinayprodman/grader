@@ -150,7 +150,7 @@ const Signup: React.FC = () => {
             </select>
           </div>
           
-          <button 
+          <button aria-busy
             type="submit" 
             className="btn" 
             disabled={isLoading}

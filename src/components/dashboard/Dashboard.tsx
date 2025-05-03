@@ -12,6 +12,7 @@ const Dashboard: React.FC = () => {
   // Filter quizzes based on user's grade level
   const userGradeLevel = user?.grade || '';
   const gradeNumber = parseInt(userGradeLevel.split(' ')[0]) || 0;
+  console.log(gradeNumber)
   
   // Get appropriate quizzes for user's grade level (±1 grade)
   const recommendedQuizzes = quizData.filter(quiz => {
