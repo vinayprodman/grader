@@ -1,0 +1,172 @@
+[
+    {
+        "question": "Which of the following is a natural source of light?",
+        "options": [
+            "Bulb",
+            "Tube light",
+            "Sun",
+            "Candle"
+        ],
+        "correctIndex": 2,
+        "correctEmoji": "\ud83c\udf89",
+        "incorrectEmoji": "\ud83d\ude05",
+        "correctFeedback": "\ud83c\udf1e You're shining bright! The Sun is a natural light source and lights up our whole planet!",
+        "incorrectFeedback": "Oops! Nice try! The correct answer is the Sun \u2013 it's nature's very own light bulb!",
+        "category": "Sources of Light",
+        "flyingIconCorrect": "\ud83c\udf89\u2705",
+        "flyingIconIncorrect": "\ud83d\ude05\u274c"
+    },
+    {
+        "question": "Objects that give out light are called:",
+        "options": [
+            "Opaque objects",
+            "Non-luminous objects",
+            "Luminous objects",
+            "Transparent objects"
+        ],
+        "correctIndex": 2,
+        "correctEmoji": "\ud83c\udf89",
+        "incorrectEmoji": "\ud83d\ude05",
+        "correctFeedback": "\u2728 Brilliant! Luminous objects glow with their own light \u2013 just like a star student like you!",
+        "incorrectFeedback": "Not quite! The right answer is 'Luminous objects' \u2013 they light up on their own, like glowing heroes!",
+        "category": "Sources of Light",
+        "flyingIconCorrect": "\ud83d\udc4f\ud83c\udf1f",
+        "flyingIconIncorrect": "\ud83d\ude48\ud83d\udeab"
+    },
+    {
+        "question": "Which of these is an artificial source of light?",
+        "options": [
+            "Stars",
+            "Firefly",
+            "Electric bulb",
+            "Sun"
+        ],
+        "correctIndex": 2,
+        "correctEmoji": "\ud83c\udf89",
+        "incorrectEmoji": "\ud83d\ude05",
+        "correctFeedback": "\ud83d\udca1 Spot on! Electric bulbs are man-made and help us light up the night!",
+        "incorrectFeedback": "Almost there! It's the Electric bulb \u2013 a super useful artificial light created by humans!",
+        "category": "Sources of Light",
+        "flyingIconCorrect": "\ud83d\udc4d\ud83d\ude0e",
+        "flyingIconIncorrect": "\ud83e\udd14\ud83d\ude2c"
+    },
+    {
+        "question": "Which object will block light completely?",
+        "options": [
+            "Glass",
+            "Water",
+            "Wood",
+            "Butter paper"
+        ],
+        "correctIndex": 2,
+        "correctEmoji": "\ud83c\udf89",
+        "incorrectEmoji": "\ud83d\ude05",
+        "correctFeedback": "\ud83c\udf33 Nailed it! Wood doesn\u2019t let light pass through at all \u2013 it\u2019s totally opaque!",
+        "incorrectFeedback": "Good guess! But the right answer is Wood \u2013 it's like a wall to light, blocking it completely!",
+        "category": "Properties of Materials",
+        "flyingIconCorrect": "\u2728\ud83c\udfaf",
+        "flyingIconIncorrect": "\ud83d\ude13\ud83d\udd01"
+    },
+    {
+        "question": "What is formed when an opaque object blocks light?",
+        "options": [
+            "Reflection",
+            "Sound",
+            "Shadow",
+            "Electricity"
+        ],
+        "correctIndex": 2,
+        "correctEmoji": "\ud83c\udf89",
+        "incorrectEmoji": "\ud83d\ude05",
+        "correctFeedback": "\ud83d\udd76 Yes! Shadows are light\u2019s playful secrets when something gets in the way!",
+        "incorrectFeedback": "Oopsie! The answer is 'Shadow' \u2013 it\u2019s the dark shape formed when light is blocked!",
+        "category": "Light and Shadow",
+        "flyingIconCorrect": "\ud83d\ude4c\ud83c\udf88",
+        "flyingIconIncorrect": "\ud83e\udee3\ud83d\udca5"
+    },
+    {
+        "question": "Transparent objects:",
+        "options": [
+            "Do not allow light to pass through",
+            "Allow all light to pass through completely",
+            "Allow some light",
+            "Glow in the dark"
+        ],
+        "correctIndex": 1,
+        "correctEmoji": "\ud83c\udf89",
+        "incorrectEmoji": "\ud83d\ude05",
+        "correctFeedback": "\ud83c\udf08 Crystal clear! Transparent objects let all the light pass through \u2013 like clean windows!",
+        "incorrectFeedback": "Nice try! But the correct answer is that transparent objects let light pass through completely!",
+        "category": "Properties of Materials",
+        "flyingIconCorrect": "\ud83c\udfc6\ud83d\ude01",
+        "flyingIconIncorrect": "\ud83d\ude15\ud83d\udcdb"
+    },
+    {
+        "question": "Which of the following is a transparent material?",
+        "options": [
+            "Cardboard",
+            "Mirror",
+            "Clear glass",
+            "Frosted glass"
+        ],
+        "correctIndex": 2,
+        "correctEmoji": "\ud83c\udf89",
+        "incorrectEmoji": "\ud83d\ude05",
+        "correctFeedback": "\ud83d\udd0d Great job! Clear glass is see-through and lets light zoom right through!",
+        "incorrectFeedback": "Almost! It's clear glass \u2013 it's so transparent you can see right through it!",
+        "category": "Properties of Materials",
+        "flyingIconCorrect": "\ud83d\udca1\ud83c\udf89",
+        "flyingIconIncorrect": "\ud83d\ude35\u200d\ud83d\udcab\ud83d\udc4e"
+    },
+    {
+        "question": "What type of material is butter paper?",
+        "options": [
+            "Transparent",
+            "Translucent",
+            "Opaque",
+            "Luminous"
+        ],
+        "correctIndex": 1,
+        "correctEmoji": "\ud83c\udf89",
+        "incorrectEmoji": "\ud83d\ude05",
+        "correctFeedback": "\ud83c\udf89 Sweet like butter! Butter paper lets *some* light through \u2013 that's translucent for you!",
+        "incorrectFeedback": "Close one! The correct answer is 'Translucent' \u2013 butter paper lets just a bit of light through!",
+        "category": "Properties of Materials",
+        "flyingIconCorrect": "\ud83c\udf8a\ud83d\ude04",
+        "flyingIconIncorrect": "\ud83e\udd74\ud83d\udeab"
+    },
+    {
+        "question": "Which of these does *not* produce light on its own?",
+        "options": [
+            "Moon",
+            "Sun",
+            "Bulb",
+            "Torch"
+        ],
+        "correctIndex": 0,
+        "correctEmoji": "\ud83c\udf89",
+        "incorrectEmoji": "\ud83d\ude05",
+        "correctFeedback": "\ud83c\udf15 You\u2019re a space star! The moon shines, but only by reflecting sunlight!",
+        "incorrectFeedback": "Not quite! The Moon only reflects light \u2013 it doesn't make its own!",
+        "category": "Sources of Light",
+        "flyingIconCorrect": "\ud83d\udd25\ud83c\udf93",
+        "flyingIconIncorrect": "\ud83d\ude29\ud83d\udcc9"
+    },
+    {
+        "question": "What do we call materials that *do not* let light pass through them?",
+        "options": [
+            "Transparent",
+            "Translucent",
+            "Opaque",
+            "Reflective"
+        ],
+        "correctIndex": 2,
+        "correctEmoji": "\ud83c\udf89",
+        "incorrectEmoji": "\ud83d\ude05",
+        "correctFeedback": "\ud83d\udeab Opaque-tastic! These materials block all the light \u2013 no peeking through!",
+        "incorrectFeedback": "Good attempt! The right answer is 'Opaque' \u2013 it blocks light completely like a closed door!",
+        "category": "Properties of Materials",
+        "flyingIconCorrect": "\ud83e\udd29\ud83d\ude80",
+        "flyingIconIncorrect": "\ud83d\ude36\u200d\ud83c\udf2b\ufe0f\ud83d\ude43"
+    }
+]
