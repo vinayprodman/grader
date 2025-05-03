@@ -1,0 +1,133 @@
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--primary);
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: var(--primary-lighter);
+}
+
+.dashboard-screen h1 {
+  margin: 0;
+}
+
+.results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.result-card {
+  background-color: var(--primary-lighter);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  border-left: 4px solid var(--primary);
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.result-header h4 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 18px;
+}
+
+.result-date {
+  font-size: 14px;
+  color: var(--text-light);
+}
+
+.result-score {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.result-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.result-feedback strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-dark);
+}
+
+.result-feedback ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.result-feedback li {
+  margin-bottom: 2px;
+  color: var(--text-medium);
+}
+
+.badges-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.badge-item {
+  font-size: 28px;
+  width: 56px;
+  height: 56px;
+  background-color: var(--primary-lighter);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+}
+
+.quote-box {
+  background-color: var(--warning-light);
+  border-left: 4px solid var(--warning);
+  padding: 15px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+}
+
+.quote-text {
+  font-style: italic;
+  font-weight: 500;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .result-feedback {
+    flex-direction: row;
+    gap: 32px;
+  }
+  
+  .result-feedback > div {
+    flex: 1;
+  }
+}
