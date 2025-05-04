@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import graderLogo from "../../assets/grader_logo.png";
 
@@ -13,7 +13,6 @@ const Signup: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { register, googleSignIn } = useAuth();
-  const navigate = useNavigate();
 
   const gradeOptions = [
     "Kindergarten",
@@ -29,18 +28,37 @@ const Signup: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!name || !email || !password || age === "" || !grade) {
       setError("Please fill in all fields");
       return;
     }
+
+    if (typeof age === "number" && (age < 5 || age > 15)) {
+      setError("Age must be between 5 and 15");
+      return;
+    }
+
     try {
       setError("");
       setIsLoading(true);
       await register(email, password, name, age, grade);
-      navigate("/"); // Go directly to dashboard
-    } catch (err) {
-      setError("Failed to create an account. Try again.");
-      console.error(err);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || "Failed to create an account. Try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setError("");
+      setIsLoading(true);
+      await googleSignIn();
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || "Failed to sign in with Google");
     } finally {
       setIsLoading(false);
     }
@@ -92,7 +110,17 @@ const Signup: React.FC = () => {
         </div>
 
         {error && (
-          <div style={{ color: "red", marginBottom: "15px" }}>{error}</div>
+          <div
+            style={{
+              color: "red",
+              marginBottom: "15px",
+              padding: "10px",
+              background: "#ffebee",
+              borderRadius: "4px",
+            }}
+          >
+            {error}
+          </div>
         )}
 
         <form onSubmit={handleSubmit}>
@@ -106,6 +134,7 @@ const Signup: React.FC = () => {
               onChange={(e) => setName(e.target.value)}
               placeholder="Your Name"
               required
+              disabled={isLoading}
               style={{ width: "100%", padding: "8px", marginTop: "5px" }}
             />
           </div>
@@ -120,6 +149,7 @@ const Signup: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your-email@example.com"
               required
+              disabled={isLoading}
               style={{ width: "100%", padding: "8px", marginTop: "5px" }}
             />
           </div>
@@ -135,6 +165,7 @@ const Signup: React.FC = () => {
               placeholder="Create a Password"
               required
               minLength={6}
+              disabled={isLoading}
               style={{ width: "100%", padding: "8px", marginTop: "5px" }}
             />
           </div>
@@ -153,6 +184,7 @@ const Signup: React.FC = () => {
               min={5}
               max={15}
               required
+              disabled={isLoading}
               style={{ width: "100%", padding: "8px", marginTop: "5px" }}
             />
           </div>
@@ -165,6 +197,7 @@ const Signup: React.FC = () => {
               value={grade}
               onChange={(e) => setGrade(e.target.value)}
               required
+              disabled={isLoading}
               style={{ width: "100%", padding: "8px", marginTop: "5px" }}
             >
               <option value="" disabled>
@@ -179,7 +212,6 @@ const Signup: React.FC = () => {
           </div>
 
           <button
-            aria-busy
             type="submit"
             className="btn"
             disabled={isLoading}
@@ -192,6 +224,7 @@ const Signup: React.FC = () => {
               borderRadius: "4px",
               cursor: isLoading ? "not-allowed" : "pointer",
               marginBottom: "15px",
+              opacity: isLoading ? 0.7 : 1,
             }}
           >
             {isLoading ? "Creating Account..." : "Sign Up"}
@@ -215,7 +248,8 @@ const Signup: React.FC = () => {
 
         {/* Google Sign Up */}
         <button
-          onClick={googleSignIn}
+          onClick={handleGoogleSignIn}
+          disabled={isLoading}
           style={{
             width: "100%",
             padding: "10px",
@@ -223,7 +257,7 @@ const Signup: React.FC = () => {
             color: "#444",
             border: "1px solid #dadce0",
             borderRadius: "6px",
-            cursor: "pointer",
+            cursor: isLoading ? "not-allowed" : "pointer",
             fontWeight: 600,
             marginBottom: "10px",
             display: "flex",
@@ -232,11 +266,14 @@ const Signup: React.FC = () => {
             gap: "12px",
             boxShadow: "0 1px 2px rgba(60,64,67,.08)",
             transition: "box-shadow 0.2s",
+            opacity: isLoading ? 0.7 : 1,
           }}
           onMouseOver={(e) =>
+            !isLoading &&
             (e.currentTarget.style.boxShadow = "0 2px 4px rgba(60,64,67,.15)")
           }
           onMouseOut={(e) =>
+            !isLoading &&
             (e.currentTarget.style.boxShadow = "0 1px 2px rgba(60,64,67,.08)")
           }
         >
