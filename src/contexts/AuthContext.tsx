@@ -7,6 +7,7 @@ import {
   signOut,
   signInWithPopup,
   onAuthStateChanged,
+  User as FirebaseUser,
 } from "firebase/auth";
 import { auth, googleProvider, db } from "../firebase"; // Assuming db is your Firestore instance
 import { useNavigate } from "react-router-dom";
@@ -20,6 +21,8 @@ interface User {
   email: string;
   age: number;
   grade: string;
+  createdAt: Date;
+  lastLogin: Date;
 }
 
 interface AuthContextType {
@@ -33,16 +36,35 @@ interface AuthContextType {
     age: number,
     grade: string
   ) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   googleSignIn: () => Promise<void>;
 }
 
 // Create context
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
+// Helper function to create user data
+const createUserData = (firebaseUser: FirebaseUser, additionalData: Partial<User> = {}): User => {
+  const now = new Date();
+  return {
+    id: firebaseUser.uid,
+    email: firebaseUser.email || "",
+    name: firebaseUser.displayName || additionalData.name || "",
+    age: additionalData.age || 0,
+    grade: additionalData.grade || "",
+    createdAt: additionalData.createdAt || now,
+    lastLogin: now,
+  };
+};
+
+// Helper function to update user in Firestore
+const updateUserInFirestore = async (userId: string, userData: Partial<User>) => {
+  await setDoc(doc(db, "users", userId), userData, { merge: true });
+};
+
 // Auth provider component
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -51,29 +73,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Check Firestore for existing user data
-        const userRef = doc(db, "users", firebaseUser.uid);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const userInfo: User = {
-            id: firebaseUser.uid,
-            email: firebaseUser.email || "",
-            name: userData.name || "",
-            age: userData.age || 0,
-            grade: userData.grade || "",
-          };
-          setUser(userInfo);
-        } else {
-          // If no user data, initialize empty data
-          const userInfo: User = {
-            id: firebaseUser.uid,
-            email: firebaseUser.email || "",
-            name: firebaseUser.displayName || "",
-            age: 0,
-            grade: "",
-          };
-          setUser(userInfo);
+        try {
+          const userRef = doc(db, "users", firebaseUser.uid);
+          const userDoc = await getDoc(userRef);
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const userInfo = createUserData(firebaseUser, userData);
+            setUser(userInfo);
+          } else {
+            const userInfo = createUserData(firebaseUser);
+            await updateUserInFirestore(firebaseUser.uid, userInfo);
+            setUser(userInfo);
+          }
+        } catch (error) {
+          console.error("Error loading user data:", error);
+          setUser(createUserData(firebaseUser));
         }
       } else {
         setUser(null);
@@ -86,27 +101,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string) => {
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
-      // Check Firestore for additional user info
       const userRef = doc(db, "users", res.user.uid);
       const userDoc = await getDoc(userRef);
+      
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        const userInfo: User = {
-          id: res.user.uid,
-          email: res.user.email || "",
-          name: userData.name || "",
-          age: userData.age || 0,
-          grade: userData.grade || "",
-        };
+        const userInfo = createUserData(res.user, userData);
+        await updateUserInFirestore(res.user.uid, { lastLogin: new Date() });
         setUser(userInfo);
         navigate("/");
       } else {
-        // If no additional user info exists, navigate to profile completion
         navigate("/complete-profile");
       }
-    } catch (err: any) {
-      alert(err.message);
-      navigate("/login");
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to log in");
     }
   };
 
@@ -116,75 +124,73 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     name: string,
     age: number,
     grade: string
-  ): Promise<any> => { // Now it returns a value instead of void
+  ) => {
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
-  
-  
-      // Save user info to Firestore
-      await setDoc(doc(db, "users", res.user.uid), {
-        name,
-        age,
-        grade,
-      });
-  
-      alert("Registration Successful");
+      const userInfo = createUserData(res.user, { name, age, grade });
+      
+      await updateUserInFirestore(res.user.uid, userInfo);
+      setUser(userInfo);
       navigate("/");
-  
-      return res; // Return user credential object
-    } catch (err: any) {
-      alert(err.message);
-      navigate("/signup");
-      return null; // Return null or handle the error appropriately
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to create account");
     }
   };
-  
 
   const logout = async () => {
     try {
       await signOut(auth);
       setUser(null);
       navigate("/login");
-    } catch (err: any) {
-      alert(err.message);
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to log out");
     }
   };
 
   const googleSignIn = async () => {
     try {
       const res = await signInWithPopup(auth, googleProvider);
-      const userInfo: User = {
-        id: res.user.uid,
-        email: res.user.email || "",
-        name: res.user.displayName || "",
-        age: 0, // Default value, will be updated from modal
-        grade: "", // Default value, will be updated from modal
-      };
-
-      setUser(userInfo);
-      setModalOpen(true); // Open modal for age and grade
-    } catch (err: any) {
-      alert(err.message);
+      const userInfo = createUserData(res.user);
+      
+      // Check if user exists in Firestore
+      const userRef = doc(db, "users", res.user.uid);
+      const userDoc = await getDoc(userRef);
+      
+      if (!userDoc.exists()) {
+        setUser(userInfo);
+        setModalOpen(true);
+      } else {
+        const userData = userDoc.data();
+        const updatedUser = createUserData(res.user, userData);
+        await updateUserInFirestore(res.user.uid, { lastLogin: new Date() });
+        setUser(updatedUser);
+        navigate("/");
+      }
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to sign in with Google");
     }
   };
 
   const handleProfileSubmit = async (age: string, grade: string) => {
     if (user) {
-      const updatedUser = {
-        ...user,
-        age: parseInt(age || "0", 10),
-        grade: grade || "",
-      };
+      try {
+        const updatedUser = {
+          ...user,
+          age: parseInt(age || "0", 10),
+          grade: grade || "",
+        };
 
-      // Update user info in Firestore
-      await setDoc(doc(db, "users", user.id), {
-        age: updatedUser.age,
-        grade: updatedUser.grade,
-      });
+        await updateUserInFirestore(user.id, {
+          age: updatedUser.age,
+          grade: updatedUser.grade,
+        });
 
-      setUser(updatedUser);
-      setModalOpen(false); // Close the modal after submitting
-      navigate("/");
+        setUser(updatedUser);
+        setModalOpen(false);
+        navigate("/");
+      } catch (error: any) {
+        throw new Error(error.message || "Failed to update profile");
+      }
     }
   };
 

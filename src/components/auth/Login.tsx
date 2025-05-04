@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import graderLogo from "../../assets/grader_logo.png";
 
@@ -10,7 +10,6 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { login, googleSignIn } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,10 +23,22 @@ const Login: React.FC = () => {
       setError("");
       setIsLoading(true);
       await login(email, password);
-      navigate("/");
-    } catch (err) {
-      setError("Failed to log in. Please check your credentials.");
-      console.error(err);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || "Failed to log in. Please check your credentials.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setError("");
+      setIsLoading(true);
+      await googleSignIn();
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || "Failed to sign in with Google");
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +89,19 @@ const Login: React.FC = () => {
           <h2>Log in to continue your learning journey</h2>
         </div>
 
-        {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
+        {error && (
+          <div
+            style={{
+              color: "red",
+              marginBottom: "15px",
+              padding: "10px",
+              background: "#ffebee",
+              borderRadius: "4px",
+            }}
+          >
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={{ marginBottom: "15px" }}>
@@ -91,6 +114,7 @@ const Login: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your-email@example.com"
               required
+              disabled={isLoading}
               style={{ width: "100%", padding: "8px", marginTop: "5px" }}
             />
           </div>
@@ -105,6 +129,7 @@ const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="********"
               required
+              disabled={isLoading}
               style={{ width: "100%", padding: "8px", marginTop: "5px" }}
             />
           </div>
@@ -122,6 +147,7 @@ const Login: React.FC = () => {
               borderRadius: "4px",
               cursor: isLoading ? "not-allowed" : "pointer",
               marginBottom: "15px",
+              opacity: isLoading ? 0.7 : 1,
             }}
           >
             {isLoading ? "Logging in..." : "Log In"}
@@ -145,7 +171,8 @@ const Login: React.FC = () => {
 
         {/* Google Sign In */}
         <button
-          onClick={googleSignIn}
+          onClick={handleGoogleSignIn}
+          disabled={isLoading}
           style={{
             width: "100%",
             padding: "10px",
@@ -153,7 +180,7 @@ const Login: React.FC = () => {
             color: "#444",
             border: "1px solid #dadce0",
             borderRadius: "6px",
-            cursor: "pointer",
+            cursor: isLoading ? "not-allowed" : "pointer",
             fontWeight: 600,
             marginBottom: "10px",
             display: "flex",
@@ -162,15 +189,18 @@ const Login: React.FC = () => {
             gap: "12px",
             boxShadow: "0 1px 2px rgba(60,64,67,.08)",
             transition: "box-shadow 0.2s",
+            opacity: isLoading ? 0.7 : 1,
           }}
           onMouseOver={(e) =>
+            !isLoading &&
             (e.currentTarget.style.boxShadow = "0 2px 4px rgba(60,64,67,.15)")
           }
           onMouseOut={(e) =>
+            !isLoading &&
             (e.currentTarget.style.boxShadow = "0 1px 2px rgba(60,64,67,.08)")
           }
         >
-          <svg width = "24" height = "24" viewBox="0 0 48 48">
+          <svg width="24" height="24" viewBox="0 0 48 48">
             <clipPath id="g">
               <path d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z" />
             </clipPath>
