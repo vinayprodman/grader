@@ -109,7 +109,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const userInfo = createUserData(res.user, userData);
         await updateUserInFirestore(res.user.uid, { lastLogin: new Date() });
         setUser(userInfo);
-        navigate("/");
+        navigate("/dashboard");
       } else {
         navigate("/complete-profile");
       }
@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       await updateUserInFirestore(res.user.uid, userInfo);
       setUser(userInfo);
-      navigate("/");
+      navigate("/dashboard");
     } catch (error: any) {
       throw new Error(error.message || "Failed to create account");
     }
@@ -164,7 +164,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const updatedUser = createUserData(res.user, userData);
         await updateUserInFirestore(res.user.uid, { lastLogin: new Date() });
         setUser(updatedUser);
-        navigate("/");
+        navigate("/dashboard");
       }
     } catch (error: any) {
       throw new Error(error.message || "Failed to sign in with Google");
@@ -187,7 +187,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         setUser(updatedUser);
         setModalOpen(false);
-        navigate("/");
+        navigate("/dashboard");
       } catch (error: any) {
         throw new Error(error.message || "Failed to update profile");
       }
