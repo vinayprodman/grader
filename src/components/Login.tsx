@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import graderLogo from "../../assets/grader_logo.png";
+import { useAuth } from "../contexts/AuthContext";
+import graderLogo from "../assets/grader_logo.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -147,22 +147,10 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Divider */}
-        <div
-          style={{ display: "flex", alignItems: "center", margin: "15px 0" }}
-        >
-          <hr
-            style={{ flex: 1, border: "none", borderTop: "1px solid #ccc" }}
-          />
-          <span style={{ padding: "0 10px", color: "#666", fontSize: "14px" }}>
-            OR
-          </span>
-          <hr
-            style={{ flex: 1, border: "none", borderTop: "1px solid #ccc" }}
-          />
+        <div style={{ textAlign: "center", margin: "20px 0" }}>
+          <span style={{ color: "#666" }}>or</span>
         </div>
 
-        {/* Google Sign In */}
         <button
           onClick={handleGoogleSignIn}
           disabled={isLoading}
@@ -240,4 +228,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login; 
