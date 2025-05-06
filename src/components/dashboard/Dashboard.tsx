@@ -1,106 +1,108 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { quizData } from '../../data/quizData';
-import { Award, BookOpen, LogOut } from 'lucide-react';
+import { BookOpen, User, LogOut } from 'lucide-react';
+import { Subject, getSubjects } from '../../data/mockData';
 import '../../styles/Dashboard.css';
 
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
-  // Filter quizzes based on user's grade level
-  const userGradeLevel = user?.grade || '';
-  const gradeNumber = parseInt(userGradeLevel.split(' ')[0]) || 0;
-  console.log(gradeNumber)
-  
-  // Get appropriate quizzes for user's grade level (±1 grade)
-  const recommendedQuizzes = quizData.filter(quiz => {
-    // Match with levels roughly corresponding to grades
-    return Math.abs(quiz.level - gradeNumber) <= 1;
-  });
-  
-  const handleQuizSelect = (quizId: string) => {
-    navigate(`/quiz/start/${quizId}`);
+  const { user, signOut } = useAuth();
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSubjects = async () => {
+      try {
+        const data = await getSubjects();
+        setSubjects(data);
+      } catch (error) {
+        console.error('Error loading subjects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSubjects();
+  }, []);
+
+  const handleSubjectClick = (subjectId: string) => {
+    navigate(`/subjects/${subjectId}`);
   };
-  
-  const handleViewProgress = () => {
-    navigate('/progress');
+
+  const handleProfileSetup = () => {
+    navigate('/profile-setup');
   };
-  
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
-  
+
+  if (loading) {
+    return <div className="loading">Loading dashboard...</div>;
+  }
+
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
+      <div className="dashboard-header">
         <div className="logo">
           <BookOpen size={32} color="#4a6ee0" />
           <h1>grader</h1>
         </div>
-        <div className="user-info">
-          <span>Hi, {user?.name} 👋</span>
-          <button className="icon-button" onClick={handleLogout}>
-            <LogOut size={20} />
-          </button>
-        </div>
-      </header>
-      
-      <div className="welcome-banner">
-        <h2>Welcome to grader!</h2>
-        <p>Choose a quiz to challenge yourself and earn badges.</p>
-      </div>
-      
-      <div className="stats-summary">
-        <div className="stat-card">
-          <span className="stat-value">4</span>
-          <span className="stat-label">Quizzes Available</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-value">2</span>
-          <span className="stat-label">Completed</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-value">85%</span>
-          <span className="stat-label">Average Score</span>
-        </div>
-      </div>
-      
-      <section className="quiz-section">
-        <div className="section-header">
-          <h3>Recommended Quizzes</h3>
-          <button className="view-all-btn" onClick={handleViewProgress}>
-            <Award size={16} />
-            View My Progress
-          </button>
-        </div>
-        
-        <div className="quiz-list">
-          {recommendedQuizzes.map((quiz) => (
-            <div 
-              key={quiz.id} 
-              className="quiz-card"
-              onClick={() => handleQuizSelect(quiz.id)}
+        <div className="user-actions">
+          {!user?.profile && (
+            <button 
+              className="btn btn-secondary"
+              onClick={handleProfileSetup}
             >
-              <div className="quiz-icon">{quiz.icon}</div>
-              <div className="quiz-details">
-                <h4>{quiz.title}</h4>
-                <p>{quiz.description}</p>
-                <div className="quiz-meta">
-                  <span className="quiz-level">Level {quiz.level}</span>
-                  <span className="quiz-questions">10 Questions</span>
-                  <span className="quiz-price">₹{quiz.price}</span>
-                </div>
+              <User size={20} />
+              Complete Profile
+            </button>
+          )}
+          <button 
+            className="btn btn-ghost"
+            onClick={handleSignOut}
+          >
+            <LogOut size={20} />
+            Sign Out
+          </button>
+        </div>
+      </div>
+
+      <div className="welcome-banner">
+        <h2>Welcome back, {user?.profile?.name || user?.displayName || 'User'}! 👋</h2>
+        <p>Choose a subject to continue your learning journey</p>
+      </div>
+
+      <div className="subjects-grid">
+        {subjects.map((subject) => (
+          <div
+            key={subject.id}
+            className="subject-card"
+            onClick={() => handleSubjectClick(subject.id)}
+          >
+            <div className="subject-icon">
+              {subject.icon}
+            </div>
+            <div className="subject-content">
+              <h3>{subject.title}</h3>
+              <p>{subject.description}</p>
+              <div className="subject-meta">
+                <span className="chapter-count">
+                  {subject.chapters.length} chapters
+                </span>
+                <span className="grade-level">
+                  Grade {subject.grade}
+                </span>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
-      
-      <div className="motivation-card">
-        <p>"Learning is a treasure that will follow its owner everywhere!"</p>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -1,72 +1,95 @@
 .dashboard-container {
-  width: 100%;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 2rem;
 }
 
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 2rem;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.75rem;
 }
 
 .logo h1 {
-  font-size: 24px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
   margin: 0;
-  color: var(--primary);
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-weight: 500;
-  color: var(--text-medium);
+  gap: 1rem;
+}
+
+.user-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.profile-setup-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #4a6ee0;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.profile-setup-btn:hover {
+  background-color: #3a5bc7;
 }
 
 .icon-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-medium);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  border-radius: 50%;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
   transition: background-color 0.2s;
 }
 
 .icon-button:hover {
-  background-color: var(--primary-lighter);
-  color: var(--primary);
+  background-color: #f0f0f0;
 }
 
 .welcome-banner {
-  background-color: var(--primary);
-  color: white;
-  padding: 24px;
+  background-color: white;
   border-radius: var(--radius-lg);
-  margin-bottom: 24px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
   text-align: center;
 }
 
 .welcome-banner h2 {
-  color: white;
-  margin-bottom: 8px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
 }
 
 .welcome-banner p {
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
+  color: var(--gray-600);
+  font-size: 1.125rem;
 }
 
 .stats-summary {
@@ -210,30 +233,105 @@
   color: var(--text-dark);
 }
 
+.subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.subject-card {
+  background-color: white;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--gray-200);
+  display: flex;
+  gap: 1rem;
+}
+
+.subject-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.subject-icon {
+  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--gray-50);
+  border-radius: var(--radius-lg);
+}
+
+.subject-content {
+  flex: 1;
+}
+
+.subject-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.subject-content p {
+  color: var(--gray-600);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.subject-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.chapter-count {
+  color: var(--gray-500);
+}
+
+.grade-level {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--gray-600);
+}
+
 @media (min-width: 768px) {
   .quiz-list {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 480px) {
-  .stats-summary {
-    grid-template-columns: repeat(3, 1fr);
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
   }
   
-  .quiz-card {
+  .dashboard-header {
     flex-direction: column;
-  }
-  
-  .quiz-icon {
-    margin: 0 auto 16px;
-  }
-  
-  .quiz-details {
+    gap: 1rem;
     text-align: center;
   }
   
-  .quiz-meta {
+  .user-actions {
+    width: 100%;
     justify-content: center;
+  }
+  
+  .subjects-grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import graderLogo from "../../assets/grader_logo.png";
+import { useAuth } from "../contexts/AuthContext";
+import graderLogo from "../assets/grader_logo.png";
 
-const Login = () => {
+const Signup = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, googleSignIn } = useAuth();
+  const { signUp, googleSignIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +17,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await signUp(email, password, name);
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -77,9 +78,9 @@ const Login = () => {
             }}
           />
           <h1>
-            Welcome to <span style={{ color: "#4a6ee0" }}>grader</span>!
+            Join <span style={{ color: "#4a6ee0" }}>grader</span>!
           </h1>
-          <h2>Sign in to continue your learning journey</h2>
+          <h2>Create your account to start your learning journey</h2>
         </div>
 
         {error && (
@@ -97,6 +98,21 @@ const Login = () => {
         )}
 
         <form onSubmit={handleSubmit}>
+          <div className="form-group" style={{ marginBottom: "15px" }}>
+            <label htmlFor="name">Full Name</label>
+            <input
+              id="name"
+              type="text"
+              className="input-field"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your Name"
+              required
+              disabled={isLoading}
+              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+            />
+          </div>
+
           <div className="form-group" style={{ marginBottom: "15px" }}>
             <label htmlFor="email">Email</label>
             <input
@@ -120,8 +136,9 @@ const Login = () => {
               className="input-field"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Create a Password"
               required
+              minLength={6}
               disabled={isLoading}
               style={{ width: "100%", padding: "8px", marginTop: "5px" }}
             />
@@ -143,26 +160,14 @@ const Login = () => {
               opacity: isLoading ? 0.7 : 1,
             }}
           >
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
-        {/* Divider */}
-        <div
-          style={{ display: "flex", alignItems: "center", margin: "15px 0" }}
-        >
-          <hr
-            style={{ flex: 1, border: "none", borderTop: "1px solid #ccc" }}
-          />
-          <span style={{ padding: "0 10px", color: "#666", fontSize: "14px" }}>
-            OR
-          </span>
-          <hr
-            style={{ flex: 1, border: "none", borderTop: "1px solid #ccc" }}
-          />
+        <div style={{ textAlign: "center", margin: "20px 0" }}>
+          <span style={{ color: "#666" }}>or</span>
         </div>
 
-        {/* Google Sign In */}
         <button
           onClick={handleGoogleSignIn}
           disabled={isLoading}
@@ -204,40 +209,25 @@ const Login = () => {
               <path fill="#4285F4" d="M48 48L17 24l-4-3 35-10z" />
             </g>
           </svg>
-          Sign in with Google
+          Sign up with Google
         </button>
 
         <p style={{ textAlign: "center", marginTop: "15px" }}>
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <Link
-            to="/signup"
+            to="/login"
             style={{
               color: "#4a6ee0",
               textDecoration: "none",
               fontWeight: 500,
             }}
           >
-            Sign up here
+            Log in here
           </Link>
         </p>
-
-        <div
-          style={{
-            marginTop: "20px",
-            padding: "15px",
-            background: "#f8f9fa",
-            borderRadius: "4px",
-            fontSize: "14px",
-            color: "#666",
-          }}
-        >
-          <p style={{ marginBottom: "5px", fontWeight: 500 }}>Demo Account:</p>
-          <p>Email: demo@example.com</p>
-          <p>Password: demo123</p>
-        </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Signup; 
