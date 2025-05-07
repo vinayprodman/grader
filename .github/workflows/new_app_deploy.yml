@@ -1,0 +1,44 @@
+# .github/workflows/deploy.yml
+
+name: Deploy Grader (new_pages_app) to GitHub Pages
+
+# 1. Trigger the workflow on pushes to your branch
+on:
+  push:
+    branches:
+      - new_pages_app   # ← your feature branch :contentReference[oaicite:0]{index=0}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # allow publishing to gh-pages
+
+    steps:
+      # 2. Checkout your repository
+      - name: Checkout repository
+        uses: actions/checkout@v3  # standard checkout action :contentReference[oaicite:1]{index=1}
+
+      # 3. Set up Node.js and cache dependencies
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      # 4. Install everything from package-lock for consistency
+      - name: Install dependencies
+        run: npm ci
+
+      # 5. Build the app—the output folder is `dist/` by default
+      - name: Build application
+        run: npm run build       # `vite build` outputs to ./dist :contentReference[oaicite:2]{index=2}
+
+      # 6. Deploy the contents of `dist/` to the gh-pages branch
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4  # publishes to GH Pages :contentReference[oaicite:3]{index=3}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+        
