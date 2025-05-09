@@ -7,7 +7,7 @@ import '../../styles/Dashboard.css';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, logout } = useAuth();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,8 +36,7 @@ const Dashboard: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
-      navigate('/');
+      await logout();
     } catch (error) {
       console.error('Error signing out:', error);
     }
