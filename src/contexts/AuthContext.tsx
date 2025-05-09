@@ -210,10 +210,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (!hasProfile) {
         console.log('Redirecting to profile setup');
-        window.location.href = '/profile-setup';
+        navigate('/profile-setup');
       } else {
         console.log('Redirecting to dashboard');
-        window.location.href = '/dashboard';
+        navigate('/dashboard');
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -244,7 +244,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(updatedUser);
       setHasProfile(true);
       console.log('Redirecting to dashboard after registration');
-      window.location.href = "/dashboard";
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Registration error:', error);
       throw new Error(handleAuthError(error));
@@ -258,7 +258,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Logout successful');
       setUser(null);
       setHasProfile(false);
-      window.location.href = "/login";
+      navigate('/login');
     } catch (error: any) {
       console.error('Logout error:', error);
       throw new Error(handleAuthError(error));
@@ -309,10 +309,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (!hasProfile) {
         console.log('Redirecting to profile setup after Google sign-in');
-        window.location.href = '/profile-setup';
+        navigate('/profile-setup');
       } else {
         console.log('Redirecting to dashboard after Google sign-in');
-        window.location.href = '/dashboard';
+        navigate('/dashboard');
       }
     } catch (error: any) {
       console.error("Google sign-in error:", error);
@@ -342,7 +342,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const updatedUser = { ...user, profile };
         setUser(updatedUser);
         setHasProfile(true);
-        window.location.href = "/dashboard";
+        navigate('/dashboard');
       } catch (error: any) {
         throw new Error(error.message || "Failed to update profile");
       }
@@ -362,7 +362,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(updatedUser);
       setHasProfile(true);
       console.log('Profile updated successfully, redirecting to dashboard');
-      window.location.href = '/dashboard';
+      navigate('/dashboard');
     } catch (error) {
       console.error('Profile update error:', error);
       throw error;
