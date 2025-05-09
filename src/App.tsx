@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Landing from './components/Landing';
 import Login from './components/Login';
@@ -25,69 +25,67 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+    <AuthProvider>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-          {/* Protected routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile-setup"
-            element={
-              <ProtectedRoute>
-                <ProfileSetup />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/subjects/:subjectId"
-            element={
-              <ProtectedRoute>
-                <ChapterList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/subjects/:subjectId/chapters/:chapterId"
-            element={
-              <ProtectedRoute>
-                <ChapterDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/subjects/:subjectId/chapters/:chapterId/tests/:testId"
-            element={
-              <ProtectedRoute>
-                <Test />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/subjects/:subjectId/chapters/:chapterId/tests/:testId/results"
-            element={
-              <ProtectedRoute>
-                <TestResults />
-              </ProtectedRoute>
-            }
-          />
+        {/* Protected routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile-setup"
+          element={
+            <ProtectedRoute>
+              <ProfileSetup />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/subjects/:subjectId"
+          element={
+            <ProtectedRoute>
+              <ChapterList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/subjects/:subjectId/chapters/:chapterId"
+          element={
+            <ProtectedRoute>
+              <ChapterDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/subjects/:subjectId/chapters/:chapterId/tests/:testId"
+          element={
+            <ProtectedRoute>
+              <Test />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/subjects/:subjectId/chapters/:chapterId/tests/:testId/results"
+          element={
+            <ProtectedRoute>
+              <TestResults />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* Fallback route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthProvider>
-    </Router>
+        {/* Fallback route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 };
 
