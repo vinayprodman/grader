@@ -7,9 +7,11 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [age, setAge] = useState("");
+  const [grade, setGrade] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp, googleSignIn } = useAuth();
+  const { register, googleSignIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +19,14 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      await signUp(email, password, name);
+      const ageNum = parseInt(age, 10);
+      if (isNaN(ageNum) || ageNum <= 0) {
+        throw new Error("Please enter a valid age");
+      }
+      if (!grade.trim()) {
+        throw new Error("Please select a grade");
+      }
+      await register(email, password, name, ageNum, grade);
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -142,6 +151,50 @@ const Signup = () => {
               disabled={isLoading}
               style={{ width: "100%", padding: "8px", marginTop: "5px" }}
             />
+          </div>
+
+          <div className="form-group" style={{ marginBottom: "15px" }}>
+            <label htmlFor="age">Age</label>
+            <input
+              id="age"
+              type="number"
+              className="input-field"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              placeholder="Your Age"
+              required
+              min="1"
+              max="100"
+              disabled={isLoading}
+              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+            />
+          </div>
+
+          <div className="form-group" style={{ marginBottom: "15px" }}>
+            <label htmlFor="grade">Grade</label>
+            <select
+              id="grade"
+              className="input-field"
+              value={grade}
+              onChange={(e) => setGrade(e.target.value)}
+              required
+              disabled={isLoading}
+              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+            >
+              <option value="">Select Grade</option>
+              <option value="1">Grade 1</option>
+              <option value="2">Grade 2</option>
+              <option value="3">Grade 3</option>
+              <option value="4">Grade 4</option>
+              <option value="5">Grade 5</option>
+              <option value="6">Grade 6</option>
+              <option value="7">Grade 7</option>
+              <option value="8">Grade 8</option>
+              <option value="9">Grade 9</option>
+              <option value="10">Grade 10</option>
+              <option value="11">Grade 11</option>
+              <option value="12">Grade 12</option>
+            </select>
           </div>
 
           <button
