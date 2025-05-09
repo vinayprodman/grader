@@ -1,163 +1,142 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { quizData } from '../data/quizData';
+import { api } from '../services/api';
+import { Quiz, QuizQuestion, Chapter, Subject } from '../types/education';
 
 // Types
 export interface QuizQuestion {
-  id: number;
   question: string;
-  options: Record<string, string>;
-  answer_key: number;
-  explanation_correct: string;
-  explanation_wrong: string;
-  icon_correct: string;
-  icon_wrong: string;
+  options: {
+    A: string;
+    B: string;
+    C: string;
+    D: string;
+  };
+  answer_key: number; // 0 for A, 1 for B, 2 for C, 3 for D
 }
 
 export interface Quiz {
   id: string;
   title: string;
   description: string;
-  level: number;
-  category: string;
+  subject: string;
+  grade: number;
   questions: QuizQuestion[];
-  duration: number;
-  price: string;
-  icon: string;
 }
 
 export interface QuizResult {
   quizId: string;
   score: number;
+  accuracy: number;
+  time: number;
+  date: Date;
+  correctAnswers: number;
   totalQuestions: number;
-  completedAt: string;
-  strengths: string[];
-  weaknesses: string[];
 }
 
 interface QuizContextType {
-  currentQuestion: number;
-  setCurrentQuestion: React.Dispatch<React.SetStateAction<number>>;
-  correctAnswers: number;
-  setCorrectAnswers: React.Dispatch<React.SetStateAction<number>>;
-  showAnimation: boolean;
-  setShowAnimation: React.Dispatch<React.SetStateAction<boolean>>;
-  animationData: {
-    emoji: string;
-    explanation: string;
-  };
-  setAnimationData: React.Dispatch<React.SetStateAction<{
-    emoji: string;
-    explanation: string;
-  }>>;
-  selectOption: (optionIndex: number, isCorrect: boolean, questionData: QuizQuestion) => void;
   currentQuiz: Quiz | null;
-  loading: boolean;
+  setCurrentQuiz: (quiz: Quiz | null) => void;
+  currentChapter: Chapter | null;
+  setCurrentChapter: (chapter: Chapter | null) => void;
+  currentSubject: Subject | null;
+  setCurrentSubject: (subject: Subject | null) => void;
   quizResults: QuizResult[];
-  saveQuizResult: (result: QuizResult) => void;
-  totalQuestions: number;
+  addQuizResult: (result: QuizResult) => void;
+  getQuizResults: () => QuizResult[];
+  getQuizResult: (quizId: string) => QuizResult | null;
+  getAverageScore: () => number;
+  getTotalQuizzesTaken: () => number;
+  getTotalCorrectAnswers: () => number;
+  getTotalQuestions: () => number;
+  getTotalTimeSpent: () => number;
+  loading: boolean;
+  error: string | null;
 }
 
 // Create context
-const QuizContext = createContext<QuizContextType>({} as QuizContextType);
+const QuizContext = createContext<QuizContextType | undefined>(undefined);
 
 // Quiz provider component
-export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentQuestion, setCurrentQuestion] = useState(1);
-  const [correctAnswers, setCorrectAnswers] = useState(0);
-  const [showAnimation, setShowAnimation] = useState(false);
-  const [animationData, setAnimationData] = useState({ emoji: '🎯', explanation: '' });
+export const QuizProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null);
+  const [currentSubject, setCurrentSubject] = useState<Subject | null>(null);
   const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
-  const totalQuestions = 10; // Fixed for this demo
-  
-  const { quizId } = useParams<{ quizId: string }>();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { quizId, chapterId, subjectId } = useParams<{ quizId: string; chapterId: string; subjectId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (quizId) {
-      // Find the quiz by ID
-      const quiz = quizData.find(q => q.id === quizId);
-      if (quiz) {
-        setCurrentQuiz(quiz);
-      }
-    }
-    setLoading(false);
-    
-    // Load quiz results from localStorage
-    const savedResults = localStorage.getItem('quizResults');
-    if (savedResults) {
-      setQuizResults(JSON.parse(savedResults));
-    }
-  }, [quizId]);
-
-  const selectOption = (optionIndex: number, isCorrect: boolean, questionData: QuizQuestion) => {
-    if (isCorrect) {
-      setCorrectAnswers(prev => prev + 1);
-      setAnimationData({
-        emoji: questionData.icon_correct,
-        explanation: questionData.explanation_correct
-      });
-    } else {
-      setAnimationData({
-        emoji: questionData.icon_wrong,
-        explanation: questionData.explanation_wrong
-      });
-    }
-    
-    setShowAnimation(true);
-    
-    setTimeout(() => {
-      setShowAnimation(false);
-      
-      if (currentQuestion === totalQuestions) {
-        // Navigate to completion screen after last question
-        navigate(`/quiz/${quizId}/completion`);
-        return;
-      }
-      
-      // Move to next question
-      setCurrentQuestion(prev => prev + 1);
-      
-      // Show popup at halfway point
-      if (currentQuestion === 5) {
-        // Implementation for popup would go here
-      }
-    }, 3000);
+  const getQuizResult = (quizId: string): QuizResult | null => {
+    return quizResults.find(result => result.quizId === quizId) || null;
   };
 
-  const saveQuizResult = (result: QuizResult) => {
-    const updatedResults = [...quizResults, result];
-    setQuizResults(updatedResults);
-    localStorage.setItem('quizResults', JSON.stringify(updatedResults));
+  const addQuizResult = (result: QuizResult) => {
+    setQuizResults(prev => [...prev, result]);
+  };
+
+  const getQuizResults = () => {
+    return quizResults;
+  };
+
+  const getAverageScore = () => {
+    if (quizResults.length === 0) return 0;
+    const totalScore = quizResults.reduce((sum, result) => sum + result.score, 0);
+    return totalScore / quizResults.length;
+  };
+
+  const getTotalQuizzesTaken = () => {
+    return quizResults.length;
+  };
+
+  const getTotalCorrectAnswers = () => {
+    return quizResults.reduce((sum, result) => sum + result.correctAnswers, 0);
+  };
+
+  const getTotalQuestions = () => {
+    return quizResults.reduce((sum, result) => sum + result.totalQuestions, 0);
+  };
+
+  const getTotalTimeSpent = () => {
+    return quizResults.reduce((sum, result) => sum + result.time, 0);
+  };
+
+  const value = {
+    currentQuiz,
+    setCurrentQuiz,
+    currentChapter,
+    setCurrentChapter,
+    currentSubject,
+    setCurrentSubject,
+    quizResults,
+    getQuizResults,
+    getQuizResult,
+    addQuizResult,
+    getAverageScore,
+    getTotalQuizzesTaken,
+    getTotalCorrectAnswers,
+    getTotalQuestions,
+    getTotalTimeSpent,
+    loading,
+    error
   };
 
   return (
-    <QuizContext.Provider 
-      value={{ 
-        currentQuestion,
-        setCurrentQuestion,
-        correctAnswers,
-        setCorrectAnswers,
-        showAnimation,
-        setShowAnimation,
-        animationData,
-        setAnimationData,
-        selectOption,
-        currentQuiz,
-        loading,
-        quizResults,
-        saveQuizResult,
-        totalQuestions
-      }}
-    >
-      {!loading && children}
+    <QuizContext.Provider value={value}>
+      {children}
     </QuizContext.Provider>
   );
 };
 
 // Custom hook for using quiz context
-export const useQuiz = () => useContext(QuizContext);
+export const useQuiz = () => {
+  const context = useContext(QuizContext);
+  if (context === undefined) {
+    throw new Error('useQuiz must be used within a QuizProvider');
+  }
+  return context;
+};

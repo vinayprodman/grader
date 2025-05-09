@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useQuiz } from '../../contexts/QuizContext';
+import { api } from '../../services/api';
+import { Quiz } from '../../types/education';
 import '../../styles/QuizTest.css';
-
-interface Question {
-  question: string;
-  options: string[];
-  correct: string;
-}
 
 interface TestData {
   answers: string[];
@@ -15,14 +12,19 @@ interface TestData {
   navigationHistory: Array<{
     from: number;
     to: number;
-    action: string;
+    action: 'next' | 'prev';
   }>;
 }
 
 const QuizTest: React.FC = () => {
+  const { quizId } = useParams();
   const navigate = useNavigate();
-  const { testId } = useParams();
   const { user } = useAuth();
+  const { addQuizResult } = useQuiz();
+  
+  console.log('QuizTest: Component mounted with quizId:', quizId);
+  
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [testStartTime, setTestStartTime] = useState<number | null>(null);
   const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
@@ -32,87 +34,84 @@ const QuizTest: React.FC = () => {
     questionTimes: [],
     navigationHistory: []
   });
-
-  // Sample questions - In a real app, these would come from an API
-  const questions: Question[] = [
-    {
-      question: "What is 0.5 + 0.3?",
-      options: ["0.8", "0.7", "0.9", "0.6"],
-      correct: "A"
-    },
-    {
-      question: "What is 2.7 - 1.4?",
-      options: ["1.1", "1.2", "1.3", "1.4"],
-      correct: "C"
-    },
-    {
-      question: "What is 0.6 × 0.5?",
-      options: ["0.3", "0.25", "0.35", "0.4"],
-      correct: "A"
-    }
-  ];
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    startTest();
-    return () => {
-      if (timerInterval) {
-        clearInterval(timerInterval);
+    const loadQuiz = async () => {
+      console.log('QuizTest: Starting to load quiz data');
+      console.log('QuizTest: quizId from params:', quizId);
+      
+      try {
+        if (!quizId) {
+          console.log('QuizTest: No quizId found, redirecting to dashboard');
+          navigate('/dashboard');
+          return;
+        }
+
+        console.log('QuizTest: Fetching quiz data for ID:', quizId);
+        const quizData = await api.getQuiz(quizId);
+        console.log('QuizTest: Received quiz data:', quizData);
+
+        if (quizData) {
+          setQuiz(quizData);
+          setTestData(prev => ({
+            ...prev,
+            answers: new Array(quizData.questions.length).fill('')
+          }));
+          console.log('QuizTest: Quiz data set successfully');
+        } else {
+          console.log('QuizTest: No quiz data found');
+          setLoading(false);
+          showNotification('Quiz not found. Please try another quiz.');
+          setTimeout(() => navigate('/dashboard'), 2000);
+        }
+      } catch (error) {
+        console.error('QuizTest: Error loading quiz:', error);
+        setLoading(false);
+        showNotification('Error loading quiz. Please try again.');
+        setTimeout(() => navigate('/dashboard'), 2000);
+      } finally {
+        setLoading(false);
       }
     };
-  }, []);
+
+    loadQuiz();
+  }, [quizId, navigate]);
+
+  useEffect(() => {
+    if (quiz && !testStartTime) {
+      console.log('QuizTest: Starting test for quiz:', quiz.id);
+      startTest();
+    }
+  }, [quiz]);
 
   const startTest = () => {
-    setCurrentQuestion(0);
-    setTestData({
-      answers: [],
-      questionTimes: [],
-      navigationHistory: []
-    });
-    setTestStartTime(Date.now());
-    setQuestionStartTime(Date.now());
+    console.log('QuizTest: Starting test timer');
+    const now = Date.now();
+    setTestStartTime(now);
+    setQuestionStartTime(now);
     startTimer();
   };
 
   const startTimer = () => {
     const interval = setInterval(() => {
-      // Timer logic here
+      const timerElement = document.getElementById('timer');
+      if (timerElement) {
+        const elapsed = Math.floor((Date.now() - (testStartTime || Date.now())) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
     }, 1000);
     setTimerInterval(interval);
   };
 
-  const loadQuestion = (index: number) => {
-    const question = questions[index];
-    const progress = ((index + 1) / questions.length) * 100;
-    
-    // Update progress bar
-    const progressFill = document.getElementById('progress-fill');
-    if (progressFill) {
-      progressFill.style.width = `${progress}%`;
-    }
-
-    // Update navigation buttons
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    if (prevBtn) {
-      prevBtn.style.visibility = index === 0 ? 'hidden' : 'visible';
-    }
-    if (nextBtn) {
-      nextBtn.innerHTML = index === questions.length - 1 ? 'Submit Test' : 'Next →';
-      nextBtn.onclick = index === questions.length - 1 ? submitTest : nextQuestion;
-    }
-  };
-
-  const selectAnswer = (element: HTMLElement, answer: string) => {
-    document.querySelectorAll('.answer-option').forEach(option => {
-      option.classList.remove('selected');
-    });
-    element.classList.add('selected');
+  const selectAnswer = (option: string) => {
     setTestData(prev => ({
       ...prev,
-      answers: {
-        ...prev.answers,
-        [currentQuestion]: answer
-      }
+      answers: prev.answers.map((answer, index) => 
+        index === currentQuestion ? option : answer
+      )
     }));
   };
 
@@ -122,93 +121,74 @@ const QuizTest: React.FC = () => {
       return;
     }
 
-    // Record time spent on question
-    const timeSpent = Date.now() - (questionStartTime || 0);
-    setTestData(prev => ({
-      ...prev,
-      questionTimes: {
-        ...prev.questionTimes,
-        [currentQuestion]: timeSpent
-      },
-      navigationHistory: [
-        ...prev.navigationHistory,
-        { from: currentQuestion, to: currentQuestion + 1, action: 'next' }
-      ]
-    }));
+    if (questionStartTime) {
+      const timeSpent = Date.now() - questionStartTime;
+      setTestData(prev => ({
+        ...prev,
+        questionTimes: prev.questionTimes.map((time, index) => 
+          index === currentQuestion ? timeSpent : time
+        ),
+        navigationHistory: [
+          ...prev.navigationHistory,
+          { from: currentQuestion, to: currentQuestion + 1, action: 'next' }
+        ]
+      }));
+    }
 
-    setQuestionStartTime(Date.now());
-    setCurrentQuestion(prev => prev + 1);
-    loadQuestion(currentQuestion + 1);
+    if (currentQuestion < (quiz?.questions.length || 0) - 1) {
+      setCurrentQuestion(prev => prev + 1);
+      setQuestionStartTime(Date.now());
+    } else {
+      handleSubmit();
+    }
   };
 
   const prevQuestion = () => {
-    // Record time spent on question
-    const timeSpent = Date.now() - (questionStartTime || 0);
-    setTestData(prev => ({
-      ...prev,
-      questionTimes: {
-        ...prev.questionTimes,
-        [currentQuestion]: timeSpent
-      },
-      navigationHistory: [
-        ...prev.navigationHistory,
-        { from: currentQuestion, to: currentQuestion - 1, action: 'prev' }
-      ]
-    }));
+    if (questionStartTime) {
+      const timeSpent = Date.now() - questionStartTime;
+      setTestData(prev => ({
+        ...prev,
+        questionTimes: prev.questionTimes.map((time, index) => 
+          index === currentQuestion ? timeSpent : time
+        ),
+        navigationHistory: [
+          ...prev.navigationHistory,
+          { from: currentQuestion, to: currentQuestion - 1, action: 'prev' }
+        ]
+      }));
+    }
 
-    setQuestionStartTime(Date.now());
     setCurrentQuestion(prev => prev - 1);
-    loadQuestion(currentQuestion - 1);
+    setQuestionStartTime(Date.now());
   };
 
-  const submitTest = () => {
-    if (!testData.answers[currentQuestion]) {
-      showNotification('Please select an answer before submitting.');
-      return;
-    }
+  const handleSubmit = () => {
+    if (!quiz || !testStartTime) return;
 
-    if (timerInterval) {
-      clearInterval(timerInterval);
-    }
+    const correctAnswers = Object.values(testData.answers).filter(
+      (answer, index) => answer === String(quiz.questions[index].answer_key)
+    ).length;
 
-    // Calculate results
-    const totalTime = Date.now() - (testStartTime || 0);
-    let correctAnswers = 0;
+    const totalQuestions = quiz.questions.length;
+    const score = (correctAnswers / totalQuestions) * 100;
+    const accuracy = (correctAnswers / totalQuestions) * 100;
+    const time = Date.now() - testStartTime;
 
-    questions.forEach((q, index) => {
-      if (testData.answers[index] === q.correct) {
-        correctAnswers++;
-      }
-    });
+    const result = {
+      quizId: quiz.id,
+      score,
+      accuracy,
+      time,
+      date: new Date(),
+      correctAnswers,
+      totalQuestions
+    };
 
-    const score = (correctAnswers / questions.length) * 100;
-    const accuracy = score;
-
-    // Save test results
-    const testResults = JSON.parse(localStorage.getItem('testResults') || '[]');
-    testResults.push({
-      chapter: 'Decimals',
-      score: score,
-      accuracy: accuracy,
-      time: totalTime,
-      date: new Date().toISOString()
-    });
-    localStorage.setItem('testResults', JSON.stringify(testResults));
-
-    // Navigate to results page
-    navigate(`/quiz-results/${testId}`, {
-      state: {
-        score,
-        accuracy,
-        totalTime,
-        correctAnswers,
-        totalQuestions: questions.length
-      }
-    });
+    addQuizResult(result);
+    navigate(`/quiz-results/${quiz.id}`);
   };
 
   const showNotification = (message: string) => {
-    // Create notification element
     const notification = document.createElement('div');
     notification.style.cssText = `
       position: fixed;
@@ -235,52 +215,79 @@ const QuizTest: React.FC = () => {
     }, 2000);
   };
 
+  if (loading) {
+    console.log('QuizTest: Rendering loading state');
+    return (
+      <div className="loading">
+        <div className="dots-container">
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
+        </div>
+        <div className="loading-text">Loading quiz...</div>
+      </div>
+    );
+  }
+
+  if (!quiz) {
+    console.log('QuizTest: No quiz found, rendering not found message');
+    return <div>Quiz not found</div>;
+  }
+
+  console.log('QuizTest: Rendering quiz:', { quiz, currentQuestion });
+
+  const currentQ = quiz.questions[currentQuestion];
+  const progress = ((currentQuestion + 1) / quiz.questions.length) * 100;
+
   return (
-    <div className="test-screen">
-      <div className="container">
-        <div className="nav-header">
-          <div className="nav-title">Decimals Test</div>
-          <div id="timer" style={{ fontWeight: 600 }}>00:00</div>
+    <div className="quiz-test">
+      <div className="nav-header">
+        <div className="nav-title">{quiz.title}</div>
+        <div id="timer" className="timer">00:00</div>
+      </div>
+
+      <div className="progress-bar">
+        <div 
+          className="progress-fill" 
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      <div className="question-card">
+        <div className="question-text">
+          {currentQ.question}
         </div>
-        
-        <div className="progress-bar">
-          <div className="progress-fill" id="progress-fill" style={{ width: '33.33%' }}></div>
+        <div className="answer-options">
+          {Object.entries(currentQ.options).map(([key, value]) => (
+            <div
+              key={key}
+              className={`answer-option ${
+                testData.answers[currentQuestion] === key ? 'selected' : ''
+              }`}
+              onClick={() => selectAnswer(key)}
+            >
+              {value}
+            </div>
+          ))}
         </div>
-        
-        <div className="question-card animate-slide-up">
-          <div className="question-text" id="question-text">
-            {questions[currentQuestion]?.question}
-          </div>
-          <div className="answer-options" id="answer-options">
-            {questions[currentQuestion]?.options.map((option, index) => (
-              <div
-                key={index}
-                className="answer-option"
-                onClick={(e) => selectAnswer(e.currentTarget, String.fromCharCode(65 + index))}
-              >
-                {option}
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="test-navigation">
-          <button
-            className="btn btn-secondary"
-            onClick={prevQuestion}
-            id="prev-btn"
-            style={{ visibility: currentQuestion === 0 ? 'hidden' : 'visible' }}
-          >
-            ← Previous
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={currentQuestion === questions.length - 1 ? submitTest : nextQuestion}
-            id="next-btn"
-          >
-            {currentQuestion === questions.length - 1 ? 'Submit Test' : 'Next →'}
-          </button>
-        </div>
+      </div>
+
+      <div className="test-navigation">
+        <button
+          className="btn btn-secondary"
+          onClick={prevQuestion}
+          style={{ visibility: currentQuestion === 0 ? 'hidden' : 'visible' }}
+        >
+          ← Previous
+        </button>
+        <button
+          className="btn btn-primary"
+          onClick={nextQuestion}
+        >
+          {currentQuestion === quiz.questions.length - 1 ? 'Submit' : 'Next →'}
+        </button>
       </div>
     </div>
   );

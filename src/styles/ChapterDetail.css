@@ -2,17 +2,23 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 1rem;
+  min-height: 100vh;
 }
 
 .nav-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem 0;
   margin-bottom: 1.5rem;
+  position: sticky;
+  top: 0;
+  background-color: var(--gray-50);
+  z-index: 10;
 }
 
 .nav-title {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 600;
 }
 
@@ -75,17 +81,18 @@
   color: var(--gray-900);
 }
 
-.tests-section {
+.chapter-content {
   background-color: white;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: 1.5rem;
+  margin-bottom: 1rem;
   box-shadow: var(--shadow-sm);
 }
 
-.tests-section h3 {
-  margin-bottom: 0.5rem;
-  font-size: 1.125rem;
+.chapter-content h3 {
+  font-size: 1.25rem;
   font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
 .section-subtitle {
@@ -109,26 +116,14 @@
   transition: all 0.2s ease;
   border: 1px solid var(--gray-200);
   background-color: white;
-  text-align: left;
   width: 100%;
+  text-align: left;
 }
 
-.test-btn:hover:not(.locked) {
+.test-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   border-color: var(--primary-light);
-}
-
-.test-btn.locked {
-  background-color: var(--gray-50);
-  border-color: var(--gray-200);
-  color: var(--gray-400);
-  cursor: not-allowed;
-}
-
-.test-btn.locked:hover {
-  transform: none;
-  box-shadow: none;
 }
 
 .test-info {
@@ -149,13 +144,18 @@
   font-size: 0.875rem;
 }
 
-.test-btn.locked .test-icon {
-  background-color: var(--gray-300);
+.test-meta {
+  color: var(--gray-500);
+  font-size: 0.875rem;
 }
 
-.test-meta {
-  font-size: 0.875rem;
-  color: var(--gray-500);
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  font-size: 1.125rem;
+  color: var(--gray-600);
 }
 
 .locked-text {
@@ -166,12 +166,26 @@
   color: var(--gray-600);
 }
 
-@media (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+.no-quizzes {
+  text-align: center;
+  padding: 2rem;
+  background-color: var(--gray-50);
+  border-radius: var(--radius-lg);
+  color: var(--gray-600);
+  font-size: 1.125rem;
+  margin: 1rem 0;
+}
+
+@media (max-width: 640px) {
+  .chapter-detail {
+    padding: 0.75rem;
   }
   
   .test-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .nav-title {
+    font-size: 1.25rem;
   }
 } 

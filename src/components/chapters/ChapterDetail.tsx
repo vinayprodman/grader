@@ -1,105 +1,108 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { chapterData } from '../../data/chapterData';
-import { Test } from '../../data/chapterData';
+import { api } from '../../services/api';
+import { Chapter, Quiz } from '../../types/education';
 import '../../styles/ChapterDetail.css';
 
 const ChapterDetail: React.FC = () => {
   const { chapterId } = useParams();
   const navigate = useNavigate();
-  
-  const chapter = chapterData.find(c => c.id === chapterId);
-  
+  const [chapter, setChapter] = useState<Chapter | null>(null);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadChapterData = async () => {
+      console.log('ChapterDetail: Starting to load chapter data');
+      console.log('ChapterDetail: chapterId from params:', chapterId);
+      
+      try {
+        if (!chapterId) {
+          console.log('ChapterDetail: No chapterId found, redirecting to dashboard');
+          navigate('/dashboard');
+          return;
+        }
+
+        console.log('ChapterDetail: Fetching chapter data for ID:', chapterId);
+        const chapterData = await api.getChapter(chapterId);
+        console.log('ChapterDetail: Received chapter data:', chapterData);
+
+        if (chapterData) {
+          setChapter(chapterData);
+          console.log('ChapterDetail: Fetching quizzes for chapter:', chapterId);
+          const quizzesData = await api.getQuizzes(chapterId);
+          console.log('ChapterDetail: Received quizzes data:', quizzesData);
+          setQuizzes(quizzesData);
+        } else {
+          console.log('ChapterDetail: No chapter data found, redirecting to dashboard');
+          navigate('/dashboard');
+        }
+      } catch (error) {
+        console.error('ChapterDetail: Error loading chapter:', error);
+        navigate('/dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadChapterData();
+  }, [chapterId, navigate]);
+
+  const handleQuizClick = (quiz: Quiz) => {
+    console.log('ChapterDetail: Quiz clicked:', quiz);
+    navigate(`/quiz/${quiz.id}`);
+  };
+
+  if (loading) {
+    console.log('ChapterDetail: Rendering loading state');
+    return <div className="loading">Loading chapter...</div>;
+  }
+
   if (!chapter) {
+    console.log('ChapterDetail: No chapter found, rendering not found message');
     return <div>Chapter not found</div>;
   }
 
-  const handleTestClick = (test: Test) => {
-    if (test.isLocked) {
-      // Show locked message
-      return;
-    }
-    navigate(`/test/${test.id}`);
-  };
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+  console.log('ChapterDetail: Rendering chapter with quizzes:', { chapter, quizzes });
 
   return (
     <div className="chapter-detail">
       <div className="nav-header">
-        <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>
+        <button className="btn btn-ghost" onClick={() => navigate(-1)}>
           ← Back
         </button>
         <div className="nav-title">{chapter.title}</div>
       </div>
 
-      {chapter.status === 'completed' && (
-        <div className="performance-summary">
-          <h3>Performance Summary</h3>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <div className="stat-label">Score</div>
-              <div className="stat-value" style={{ color: 'var(--success-color)' }}>
-                {chapter.score}%
-              </div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-label">Time</div>
-              <div className="stat-value">
-                {chapter.timeSpent ? formatTime(chapter.timeSpent) : 'N/A'}
-              </div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-label">Accuracy</div>
-              <div className="stat-value" style={{ color: 'var(--success-color)' }}>
-                {chapter.accuracy}%
-              </div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-label">Status</div>
-              <div className="stat-value" style={{ color: 'var(--success-color)' }}>
-                Complete
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="tests-section">
-        <h3>Available Tests</h3>
-        <p className="section-subtitle">Complete tests to unlock more content</p>
+      <div className="chapter-content">
+        <h3>Available Quizzes</h3>
+        <p className="section-subtitle">Complete quizzes to unlock more content</p>
         
-        <div className="test-grid">
-          {chapter.tests.map((test) => (
-            <button
-              key={test.id}
-              className={`test-btn ${test.isLocked ? 'locked' : ''}`}
-              onClick={() => handleTestClick(test)}
-            >
-              <span className="test-info">
-                <span className="test-icon">
-                  {test.isLocked ? '🔒' : test.id.split('-')[1]}
+        {quizzes.length === 0 ? (
+          <div className="no-quizzes">No quizzes available for this chapter yet.</div>
+        ) : (
+          <div className="test-grid">
+            {quizzes.map((quiz, index) => (
+              <button
+                key={quiz.id}
+                className="test-btn"
+                onClick={() => handleQuizClick(quiz)}
+              >
+                <span className="test-info">
+                  <span className="test-icon">
+                    {index + 1}
+                  </span>
+                  <span>{quiz.title}</span>
                 </span>
-                <span>{test.title}</span>
-              </span>
-              <span className="test-meta">
-                {test.isLocked ? (
-                  <span className="locked-text">
-                    {test.requiredScore ? `Score ${test.requiredScore}% to unlock` : 'Locked'}
-                  </span>
-                ) : (
+                <span className="test-meta">
                   <span className="test-details">
-                    {test.questions} Questions • {test.timeLimit} min
+                    {quiz.questions.length} Questions
                   </span>
-                )}
-              </span>
-            </button>
-          ))}
-        </div>
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
