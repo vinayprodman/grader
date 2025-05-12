@@ -5,6 +5,7 @@ import { useQuiz } from '../../contexts/QuizContext';
 import { api } from '../../services/api';
 import { Quiz } from '../../types/education';
 import '../../styles/QuizTest.css';
+import Loading from '../common/Loading';
 
 interface TestData {
   answers: string[];
@@ -35,6 +36,54 @@ const QuizTest: React.FC = () => {
     navigationHistory: []
   });
   const [loading, setLoading] = useState(true);
+  const [isQuizComplete, setIsQuizComplete] = useState(false);
+  const [chapterId, setChapterId] = useState<string | null>(null);
+
+  // Load saved quiz state
+  useEffect(() => {
+    if (quizId && user) {
+      const savedState = localStorage.getItem(`quiz_${quizId}_${user.uid}`);
+      if (savedState) {
+        const { currentQuestion: savedQuestion, testData: savedTestData } = JSON.parse(savedState);
+        setCurrentQuestion(savedQuestion);
+        setTestData(savedTestData);
+      }
+    }
+  }, [quizId, user]);
+
+  // Save quiz state
+  useEffect(() => {
+    if (quizId && user && !isQuizComplete) {
+      localStorage.setItem(`quiz_${quizId}_${user.uid}`, JSON.stringify({
+        currentQuestion,
+        testData
+      }));
+    }
+  }, [currentQuestion, testData, quizId, user, isQuizComplete]);
+
+  // Navigation protection
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isQuizComplete) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isQuizComplete]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    };
+  }, [timerInterval]);
 
   useEffect(() => {
     const loadQuiz = async () => {
@@ -54,6 +103,7 @@ const QuizTest: React.FC = () => {
 
         if (quizData) {
           setQuiz(quizData);
+          setChapterId(quizData.chapterId);
           setTestData(prev => ({
             ...prev,
             answers: new Array(quizData.questions.length).fill('')
@@ -77,6 +127,23 @@ const QuizTest: React.FC = () => {
 
     loadQuiz();
   }, [quizId, navigate]);
+
+  // Prevent going back to quiz after completion
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (isQuizComplete) {
+        e.preventDefault();
+        if (chapterId) {
+          navigate(`/subjects/${quiz?.subjectId}/chapters/${chapterId}`);
+        } else {
+          navigate('/dashboard');
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [navigate, isQuizComplete, chapterId, quiz?.subjectId]);
 
   useEffect(() => {
     if (quiz && !testStartTime) {
@@ -123,21 +190,21 @@ const QuizTest: React.FC = () => {
 
     if (questionStartTime) {
       const timeSpent = Date.now() - questionStartTime;
-      setTestData(prev => ({
-        ...prev,
+    setTestData(prev => ({
+      ...prev,
         questionTimes: prev.questionTimes.map((time, index) => 
           index === currentQuestion ? timeSpent : time
         ),
-        navigationHistory: [
-          ...prev.navigationHistory,
-          { from: currentQuestion, to: currentQuestion + 1, action: 'next' }
-        ]
-      }));
+      navigationHistory: [
+        ...prev.navigationHistory,
+        { from: currentQuestion, to: currentQuestion + 1, action: 'next' }
+      ]
+    }));
     }
 
     if (currentQuestion < (quiz?.questions.length || 0) - 1) {
       setCurrentQuestion(prev => prev + 1);
-      setQuestionStartTime(Date.now());
+    setQuestionStartTime(Date.now());
     } else {
       handleSubmit();
     }
@@ -146,16 +213,16 @@ const QuizTest: React.FC = () => {
   const prevQuestion = () => {
     if (questionStartTime) {
       const timeSpent = Date.now() - questionStartTime;
-      setTestData(prev => ({
-        ...prev,
+    setTestData(prev => ({
+      ...prev,
         questionTimes: prev.questionTimes.map((time, index) => 
           index === currentQuestion ? timeSpent : time
         ),
-        navigationHistory: [
-          ...prev.navigationHistory,
-          { from: currentQuestion, to: currentQuestion - 1, action: 'prev' }
-        ]
-      }));
+      navigationHistory: [
+        ...prev.navigationHistory,
+        { from: currentQuestion, to: currentQuestion - 1, action: 'prev' }
+      ]
+    }));
     }
 
     setCurrentQuestion(prev => prev - 1);
@@ -184,8 +251,13 @@ const QuizTest: React.FC = () => {
       totalQuestions
     };
 
+    setIsQuizComplete(true);
+    localStorage.removeItem(`quiz_${quizId}_${user?.uid}`);
     addQuizResult(result);
-    navigate(`/quiz-results/${quiz.id}`);
+    
+    // Replace the current history entry to prevent going back
+    window.history.replaceState(null, '', `/quiz-results/${quiz.id}`);
+    navigate(`/quiz-results/${quiz.id}`, { replace: true });
   };
 
   const showNotification = (message: string) => {
@@ -216,24 +288,11 @@ const QuizTest: React.FC = () => {
   };
 
   if (loading) {
-    console.log('QuizTest: Rendering loading state');
-    return (
-      <div className="loading">
-        <div className="dots-container">
-          <div className="dot"></div>
-          <div className="dot"></div>
-          <div className="dot"></div>
-          <div className="dot"></div>
-          <div className="dot"></div>
-        </div>
-        <div className="loading-text">Loading quiz...</div>
-      </div>
-    );
+    return <Loading text="Loading quiz..." fullScreen />;
   }
 
   if (!quiz) {
-    console.log('QuizTest: No quiz found, rendering not found message');
-    return <div>Quiz not found</div>;
+    return <Loading text="Quiz not found..." fullScreen />;
   }
 
   console.log('QuizTest: Rendering quiz:', { quiz, currentQuestion });
@@ -243,51 +302,51 @@ const QuizTest: React.FC = () => {
 
   return (
     <div className="quiz-test">
-      <div className="nav-header">
+        <div className="nav-header">
         <div className="nav-title">{quiz.title}</div>
         <div id="timer" className="timer">00:00</div>
-      </div>
-
-      <div className="progress-bar">
+        </div>
+        
+        <div className="progress-bar">
         <div 
           className="progress-fill" 
           style={{ width: `${progress}%` }}
         />
-      </div>
-
+        </div>
+        
       <div className="question-card">
         <div className="question-text">
           {currentQ.question}
-        </div>
+          </div>
         <div className="answer-options">
           {Object.entries(currentQ.options).map(([key, value]) => (
-            <div
+              <div
               key={key}
               className={`answer-option ${
                 testData.answers[currentQuestion] === key ? 'selected' : ''
               }`}
               onClick={() => selectAnswer(key)}
-            >
+              >
               {value}
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div className="test-navigation">
-        <button
-          className="btn btn-secondary"
-          onClick={prevQuestion}
-          style={{ visibility: currentQuestion === 0 ? 'hidden' : 'visible' }}
-        >
-          ← Previous
-        </button>
-        <button
-          className="btn btn-primary"
+        
+        <div className="test-navigation">
+          <button
+            className="btn btn-secondary"
+            onClick={prevQuestion}
+            style={{ visibility: currentQuestion === 0 ? 'hidden' : 'visible' }}
+          >
+            ← Previous
+          </button>
+          <button
+            className="btn btn-primary"
           onClick={nextQuestion}
-        >
+          >
           {currentQuestion === quiz.questions.length - 1 ? 'Submit' : 'Next →'}
-        </button>
+          </button>
       </div>
     </div>
   );

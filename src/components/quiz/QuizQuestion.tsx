@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { QuizProvider, useQuiz, QuizQuestion as QuestionType } from '../../contexts/QuizContext';
+import Loading from '../common/Loading';
 import '../../styles/Quiz.css';
 
 // Popup component
@@ -113,7 +114,7 @@ const QuizQuestionContent: React.FC = () => {
   };
   
   if (!currentQuestionData) {
-    return <div>Loading question...</div>;
+    return <Loading text="Loading question..." fullScreen />;
   }
   
   return (

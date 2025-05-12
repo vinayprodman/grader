@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Subject, getSubject } from '../../data/mockData';
+import Loading from '../common/Loading';
 import '../../styles/ChapterList.css';
 
 const ChapterList: React.FC = () => {
@@ -30,11 +31,11 @@ const ChapterList: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading subject...</div>;
+    return <Loading text="Loading subject..." fullScreen />;
   }
 
   if (!subject) {
-    return <div className="error">Subject not found</div>;
+    return <Loading text="Subject not found..." fullScreen />;
   }
 
   return (

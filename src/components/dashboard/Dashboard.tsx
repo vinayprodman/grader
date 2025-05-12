@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { BookOpen, User, LogOut } from 'lucide-react';
 import { Subject, getSubjects } from '../../data/mockData';
+import Loading from '../common/Loading';
 import '../../styles/Dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -43,7 +44,7 @@ const Dashboard: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading dashboard...</div>;
+    return <Loading text="Loading dashboard..." fullScreen />;
   }
 
   return (

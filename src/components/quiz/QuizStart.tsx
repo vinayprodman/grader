@@ -1,16 +1,65 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { QuizProvider, useQuiz } from '../../contexts/QuizContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { BookOpen } from 'lucide-react';
+import { api } from '../../services/api';
 import '../../styles/Quiz.css';
+import Loading from '../common/Loading';
 
 const QuizStartContent: React.FC = () => {
   const { currentQuiz, totalQuestions } = useQuiz();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { quizId } = useParams<{ quizId: string }>();
+  const [loading, setLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   
-  if (!currentQuiz) {
-    return <div>Quiz not found</div>;
+  useEffect(() => {
+    const validateAccess = async () => {
+      if (!quizId || !user) {
+        navigate('/dashboard');
+        return;
+      }
+
+      try {
+        // Check if quiz exists
+        const quizData = await api.getQuiz(quizId);
+        if (!quizData) {
+          console.log('QuizStart: Quiz not found');
+          navigate('/dashboard');
+          return;
+        }
+
+        // Check if user has already completed this quiz
+        const savedState = localStorage.getItem(`quiz_${quizId}_${user.uid}`);
+        if (savedState) {
+          const { isComplete } = JSON.parse(savedState);
+          if (isComplete) {
+            console.log('QuizStart: Quiz already completed');
+            navigate(`/quiz-results/${quizId}`);
+            return;
+          }
+        }
+
+        setIsAuthorized(true);
+      } catch (error) {
+        console.error('QuizStart: Error validating access:', error);
+        navigate('/dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    validateAccess();
+  }, [quizId, user, navigate]);
+  
+  if (loading) {
+    return <Loading text="Loading quiz..." fullScreen />;
+  }
+
+  if (!isAuthorized || !currentQuiz) {
+    return <Loading text="Redirecting..." fullScreen />;
   }
   
   const handleStartQuiz = () => {
@@ -18,7 +67,7 @@ const QuizStartContent: React.FC = () => {
   };
   
   const handleBackToDashboard = () => {
-    navigate('/');
+    navigate('/dashboard');
   };
   
   return (

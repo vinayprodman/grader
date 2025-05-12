@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import Loading from '../common/Loading';
 import '../../styles/ProfileSetup.css';
 
 const ProfileSetup: React.FC = () => {
@@ -40,27 +41,25 @@ const ProfileSetup: React.FC = () => {
 
   return (
     <div className="profile-setup">
-      <div className="container">
-        <div className="nav-header">
-          <div className="nav-title">Create Profile</div>
-        </div>
-        
-        <div className="card animate-slide-up">
-          <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Tell us about your child</h2>
+      <div className="profile-setup-container">
+        <div className="profile-setup-content">
+          <h1>Complete Your Profile</h1>
+          <p>Tell us a bit about yourself to get started</p>
+          
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label className="form-label" htmlFor="child-name">Child's Name</label>
+              <label className="form-label" htmlFor="child-name">Name</label>
               <input
                 type="text"
                 id="child-name"
                 name="name"
                 className="form-control"
-                placeholder="Enter name"
                 value={formData.name}
                 onChange={handleChange}
                 required
               />
             </div>
+            
             <div className="form-group">
               <label className="form-label" htmlFor="child-age">Age</label>
               <input
@@ -68,14 +67,14 @@ const ProfileSetup: React.FC = () => {
                 id="child-age"
                 name="age"
                 className="form-control"
-                placeholder="Enter age"
-                min="5"
-                max="18"
                 value={formData.age}
                 onChange={handleChange}
+                min="5"
+                max="18"
                 required
               />
             </div>
+            
             <div className="form-group">
               <label className="form-label" htmlFor="child-grade">Grade</label>
               <select
@@ -100,10 +99,7 @@ const ProfileSetup: React.FC = () => {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <>
-                  Creating Profile...
-                  <div className="loading"></div>
-                </>
+                <Loading text="Creating Profile..." />
               ) : (
                 'Create Profile'
               )}

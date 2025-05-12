@@ -11,6 +11,7 @@ import ChapterList from './components/chapters/ChapterList';
 import ChapterDetail from './components/chapters/ChapterDetail';
 import QuizTest from './components/quiz/QuizTest';
 import QuizResults from './components/quiz/QuizResults';
+import PerformanceSummary from './components/PerformanceSummary';
 import './App.css';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -81,6 +82,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <QuizResults />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/performance"
+            element={
+              <ProtectedRoute>
+                <PerformanceSummary />
               </ProtectedRoute>
             }
           />

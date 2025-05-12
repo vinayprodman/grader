@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../services/api';
 import { Chapter, Quiz } from '../../types/education';
+import Loading from '../common/Loading';
 import '../../styles/ChapterDetail.css';
 
 const ChapterDetail: React.FC = () => {
@@ -55,12 +56,12 @@ const ChapterDetail: React.FC = () => {
 
   if (loading) {
     console.log('ChapterDetail: Rendering loading state');
-    return <div className="loading">Loading chapter...</div>;
+    return <Loading text="Loading chapter..." fullScreen />;
   }
 
   if (!chapter) {
     console.log('ChapterDetail: No chapter found, rendering not found message');
-    return <div>Chapter not found</div>;
+    return <Loading text="Chapter not found..." fullScreen />;
   }
 
   console.log('ChapterDetail: Rendering chapter with quizzes:', { chapter, quizzes });

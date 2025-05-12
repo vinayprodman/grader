@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import Loading from "./common/Loading";
 import graderLogo from "../assets/grader_logo.png";
 
 const Login = () => {
@@ -39,6 +40,10 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return <Loading text="Signing in..." fullScreen />;
+  }
 
   return (
     <div

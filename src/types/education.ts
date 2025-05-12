@@ -29,6 +29,7 @@ export interface QuizQuestion {
 export interface Quiz {
   id: string;
   chapterId: string;
+  subjectId: string;
   title: string;
   description: string;
   subject: string;
