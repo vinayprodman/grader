@@ -1,0 +1,83 @@
+{
+    "id": 2,
+    "title": "Indian Number System",
+    "description": "Identify place values and read or write numbers in the Indian system.",
+    "questions": [
+      {
+        "id": 1,
+        "question": "What is the place value of 4 in 3,42,567?",
+        "options": ["Thousands", "Ten Thousands", "Lakhs", "Hundreds"],
+        "correctIndex": 1,
+        "explanation": "In 3,42,567, the digit 4 is in the ten-thousands place."
+      },
+      {
+        "id": 2,
+        "question": "How is 7,08,205 written in words (Indian system)?",
+        "options": [
+          "Seven lakh eight thousand two hundred five",
+          "Seven lakh eighty-two thousand five",
+          "Seventy lakh eight thousand two hundred five",
+          "Seven million eight thousand two hundred five"
+        ],
+        "correctIndex": 0,
+        "explanation": "Correct reading is: Seven lakh eight thousand two hundred five."
+      },
+      {
+        "id": 3,
+        "question": "How many zeros are there in one crore?",
+        "options": ["5", "6", "7", "8"],
+        "correctIndex": 2,
+        "explanation": "One crore = 10,000,000, which has seven zeros."
+      },
+      {
+        "id": 4,
+        "question": "Write the numeral for “Nine lakh three thousand forty.”",
+        "options": ["9,34,000", "9,03,040", "9,30,040", "9,03,004"],
+        "correctIndex": 1,
+        "explanation": "Nine lakh (9,00,000) + three thousand (3,000) + forty (40) = 9,03,040."
+      },
+      {
+        "id": 5,
+        "question": "Which period contains the hundreds, tens, and ones places in the Indian system?",
+        "options": ["Units (Ones) period", "Thousands period", "Lakhs period", "Crores period"],
+        "correctIndex": 0,
+        "explanation": "The units (ones) period is made up of hundreds, tens, and ones."
+      },
+      {
+        "id": 6,
+        "question": "In 56,37,921 which digit is in the lakhs place?",
+        "options": ["5", "6", "3", "7"],
+        "correctIndex": 1,
+        "explanation": "6 is in the lakhs place, while 5 is in the ten-lakhs place."
+      },
+      {
+        "id": 7,
+        "question": "What is the value of 2 in 7,24,105?",
+        "options": ["2,000", "20,000", "200,000", "200"],
+        "correctIndex": 1,
+        "explanation": "The digit 2 is in the ten-thousands place → 2 × 10,000 = 20,000."
+      },
+      {
+        "id": 8,
+        "question": "What is the predecessor of one lakh?",
+        "options": ["1,00,001", "99,999", "1,00,000", "99,990"],
+        "correctIndex": 1,
+        "explanation": "Predecessor means one less: 1,00,000 – 1 = 99,999."
+      },
+      {
+        "id": 9,
+        "question": "How many digits are there in ten lakh (10,00,000)?",
+        "options": ["6", "7", "8", "9"],
+        "correctIndex": 1,
+        "explanation": "Ten lakh is 1,000,000, which is a 7-digit number."
+      },
+      {
+        "id": 10,
+        "question": "Which digit is in the ten-thousands place of 4,67,891?",
+        "options": ["4", "6", "7", "8"],
+        "correctIndex": 1,
+        "explanation": "6 occupies the ten-thousands place in 4,67,891."
+      }
+    ]
+  }
+  

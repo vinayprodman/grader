@@ -1,0 +1,102 @@
+{
+  "id": 4,
+  "title": "Sorting Materials into Groups",
+  "description": "Learn about different properties of materials and how to classify them based on their characteristics.",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which of these is a property of metals?",
+      "options": ["Brittle", "Good conductor of heat", "Transparent", "Soft"],
+      "correctIndex": 1,
+      "explanation": "Metals are good conductors of heat and electricity, while they are not brittle, transparent, or soft."
+    },
+    {
+      "id": 2,
+      "question": "What property makes a material float on water?",
+      "options": [
+        "High density",
+        "Low density",
+        "High weight",
+        "Large size"
+      ],
+      "correctIndex": 1,
+      "explanation": "Materials with low density float on water because they are lighter than water."
+    },
+    {
+      "id": 3,
+      "question": "Which of these is a transparent material?",
+      "options": ["Wood", "Glass", "Metal", "Plastic"],
+      "correctIndex": 1,
+      "explanation": "Glass is transparent as it allows light to pass through it, while wood, metal, and most plastics are opaque."
+    },
+    {
+      "id": 4,
+      "question": "What property makes a material magnetic?",
+      "options": [
+        "High density",
+        "Contains iron",
+        "Good conductor",
+        "High melting point"
+      ],
+      "correctIndex": 1,
+      "explanation": "Materials containing iron or other magnetic elements can be attracted by magnets."
+    },
+    {
+      "id": 5,
+      "question": "Which of these is a property of non-metals?",
+      "options": ["Malleable", "Ductile", "Brittle", "Good conductor"],
+      "correctIndex": 2,
+      "explanation": "Non-metals are generally brittle, meaning they break easily when hit, unlike metals which are malleable and ductile."
+    },
+    {
+      "id": 6,
+      "question": "What property makes a material soluble in water?",
+      "options": [
+        "High density",
+        "Low density",
+        "Ability to dissolve",
+        "High melting point"
+      ],
+      "correctIndex": 2,
+      "explanation": "Soluble materials can dissolve in water, forming a solution."
+    },
+    {
+      "id": 7,
+      "question": "Which of these is a property of plastics?",
+      "options": ["Conducts electricity", "Biodegradable", "Water-resistant", "Magnetic"],
+      "correctIndex": 2,
+      "explanation": "Plastics are water-resistant, which is why they are used to make containers and waterproof materials."
+    },
+    {
+      "id": 8,
+      "question": "What property makes a material a good insulator?",
+      "options": [
+        "High conductivity",
+        "Low conductivity",
+        "High density",
+        "Low density"
+      ],
+      "correctIndex": 1,
+      "explanation": "Good insulators have low conductivity, meaning they don't allow heat or electricity to pass through easily."
+    },
+    {
+      "id": 9,
+      "question": "Which of these is a property of rubber?",
+      "options": ["Rigid", "Elastic", "Brittle", "Conductive"],
+      "correctIndex": 1,
+      "explanation": "Rubber is elastic, meaning it can stretch and return to its original shape."
+    },
+    {
+      "id": 10,
+      "question": "What property makes a material a good conductor of electricity?",
+      "options": [
+        "High density",
+        "Low density",
+        "Free electrons",
+        "High melting point"
+      ],
+      "correctIndex": 2,
+      "explanation": "Good conductors of electricity have free electrons that can move easily, allowing electric current to flow."
+    }
+  ]
+}

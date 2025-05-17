@@ -1,0 +1,32 @@
+{
+    "class": 6,
+    "subject": "English",
+    "chapters": [
+      {
+        "id": 1,
+        "title": "Reading Comprehension",
+        "description": "Developing reading skills, understanding main ideas, and making inferences from texts."
+      },
+      {
+        "id": 2,
+        "title": "Grammar and Vocabulary",
+        "description": "Learning parts of speech, sentence structure, and expanding vocabulary."
+      },
+      {
+        "id": 3,
+        "title": "Writing Skills",
+        "description": "Developing writing abilities, including essays, stories, and formal letters."
+      },
+      {
+        "id": 4,
+        "title": "Literature",
+        "description": "Exploring different genres of literature, including poetry, prose, and drama."
+      },
+      {
+        "id": 5,
+        "title": "Communication Skills",
+        "description": "Enhancing speaking and listening skills, and effective communication techniques."
+      }
+    ]
+  }
+  

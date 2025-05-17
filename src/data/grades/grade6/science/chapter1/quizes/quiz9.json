@@ -1,0 +1,102 @@
+{
+  "id": 9,
+  "title": "Living Organisms and Their Surroundings",
+  "description": "Learn about different habitats, adaptations, and characteristics of living organisms.",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which of these is an adaptation of desert plants?",
+      "options": ["Broad leaves", "Deep roots", "Thick stems", "All of these"],
+      "correctIndex": 3,
+      "explanation": "Desert plants have adaptations like broad leaves to catch sunlight, deep roots to find water, and thick stems to store water."
+    },
+    {
+      "id": 2,
+      "question": "What is a habitat?",
+      "options": [
+        "A type of animal",
+        "A type of plant",
+        "Natural home of an organism",
+        "A type of food"
+      ],
+      "correctIndex": 2,
+      "explanation": "A habitat is the natural home or environment where an organism lives and finds everything it needs to survive."
+    },
+    {
+      "id": 3,
+      "question": "Which of these is an adaptation of aquatic animals?",
+      "options": ["Gills", "Lungs", "Wings", "Legs"],
+      "correctIndex": 0,
+      "explanation": "Aquatic animals have gills to breathe underwater, which extract oxygen from water."
+    },
+    {
+      "id": 4,
+      "question": "What is the main characteristic of living things?",
+      "options": [
+        "They can move",
+        "They can grow",
+        "They can reproduce",
+        "All of these"
+      ],
+      "correctIndex": 3,
+      "explanation": "Living things share several characteristics including movement, growth, and reproduction."
+    },
+    {
+      "id": 5,
+      "question": "Which of these is a terrestrial habitat?",
+      "options": ["Ocean", "River", "Forest", "Lake"],
+      "correctIndex": 2,
+      "explanation": "Forest is a terrestrial habitat as it is on land, while ocean, river, and lake are aquatic habitats."
+    },
+    {
+      "id": 6,
+      "question": "What is adaptation?",
+      "options": [
+        "A type of food",
+        "A type of animal",
+        "A special feature",
+        "A type of plant"
+      ],
+      "correctIndex": 2,
+      "explanation": "Adaptation is a special feature or behavior that helps an organism survive in its habitat."
+    },
+    {
+      "id": 7,
+      "question": "Which of these is an adaptation of polar bears?",
+      "options": ["Thin fur", "Short legs", "White fur", "Small size"],
+      "correctIndex": 2,
+      "explanation": "Polar bears have white fur as an adaptation to blend with the snow in their habitat."
+    },
+    {
+      "id": 8,
+      "question": "What is the main difference between living and non-living things?",
+      "options": [
+        "Size",
+        "Color",
+        "Shape",
+        "Life processes"
+      ],
+      "correctIndex": 3,
+      "explanation": "Living things perform life processes like growth, reproduction, and response to stimuli, while non-living things don't."
+    },
+    {
+      "id": 9,
+      "question": "Which of these is an adaptation of camels?",
+      "options": ["Thin skin", "Short legs", "Hump", "Small size"],
+      "correctIndex": 2,
+      "explanation": "Camels have a hump that stores fat, which helps them survive in the desert without water for long periods."
+    },
+    {
+      "id": 10,
+      "question": "What is the main characteristic of aquatic habitats?",
+      "options": [
+        "Presence of water",
+        "Presence of trees",
+        "Presence of mountains",
+        "Presence of soil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Aquatic habitats are characterized by the presence of water, which is essential for the survival of aquatic organisms."
+    }
+  ]
+} 

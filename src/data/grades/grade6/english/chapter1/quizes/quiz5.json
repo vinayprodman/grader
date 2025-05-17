@@ -1,0 +1,77 @@
+{
+  "id": 5,
+  "title": "Roman Numerals and Successor/Predecessor",
+  "description": "Convert between Roman and Hindu-Arabic numerals and find predecessors or successors.",
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is the Roman numeral for 49?",
+      "options": ["IL", "XLIX", "XXXXIX", "LIV"],
+      "correctIndex": 1,
+      "explanation": "40 = XL and 9 = IX → 49 = XLIX."
+    },
+    {
+      "id": 2,
+      "question": "What is the Roman numeral for 90?",
+      "options": ["IC", "XC", "LXXXX", "XCV"],
+      "correctIndex": 1,
+      "explanation": "90 = XC."
+    },
+    {
+      "id": 3,
+      "question": "What is the Hindu-Arabic numeral for LXVII?",
+      "options": ["57", "67", "77", "87"],
+      "correctIndex": 1,
+      "explanation": "L = 50, X = 10, V = 5, I = 1, 50 + 10 + 5 + 1 + 1 = 67."
+    },
+    {
+      "id": 4,
+      "question": "What is the Hindu-Arabic numeral for CIX?",
+      "options": ["99", "100", "109", "111"],
+      "correctIndex": 2,
+      "explanation": "C = 100; IX = 9 → 100 + 9 = 109."
+    },
+    {
+      "id": 5,
+      "question": "What is the successor of 99,999?",
+      "options": ["99,998", "100,000", "100,001", "1,000,000"],
+      "correctIndex": 1,
+      "explanation": "Successor means add 1 → 99,999 + 1 = 100,000."
+    },
+    {
+      "id": 6,
+      "question": "What is the predecessor of 10,000?",
+      "options": ["9,999", "10,001", "9,998", "9,990"],
+      "correctIndex": 0,
+      "explanation": "Predecessor means subtract 1 → 10,000 − 1 = 9,999."
+    },
+    {
+      "id": 7,
+      "question": "What is the Roman numeral for 14?",
+      "options": ["XIIII", "XIV", "XV", "XVI"],
+      "correctIndex": 1,
+      "explanation": "14 = 10 + 4 → XIV."
+    },
+    {
+      "id": 8,
+      "question": "What is the Roman numeral for 76?",
+      "options": ["LXXVI", "LXVI", "LXXIV", "LXXVII"],
+      "correctIndex": 0,
+      "explanation": "70 = LXX and 6 = VI → 76 = LXXVI."
+    },
+    {
+      "id": 9,
+      "question": "Which Roman numeral equals 40?",
+      "options": ["XL", "XXXX", "IL", "XLV"],
+      "correctIndex": 0,
+      "explanation": "Subtract 10 from 50: XL = 40."
+    },
+    {
+      "id": 10,
+      "question": "What is the successor of 299,999?",
+      "options": ["299,998", "300,000", "300,001", "299,999"],
+      "correctIndex": 1,
+      "explanation": "Adding 1 to 299,999 gives 300,000."
+    }
+  ]
+}

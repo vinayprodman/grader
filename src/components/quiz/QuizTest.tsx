@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useQuiz } from '../../contexts/QuizContext';
 import { api } from '../../services/api';
+import { progressService } from '../../services/progressService';
 import { Quiz } from '../../types/education';
 import '../../styles/QuizTest.css';
 import Loading from '../common/Loading';
@@ -18,7 +19,7 @@ interface TestData {
 }
 
 const QuizTest: React.FC = () => {
-  const { quizId } = useParams();
+  const { grade, subjectId, chapterId, quizId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addQuizResult } = useQuiz();
@@ -29,7 +30,6 @@ const QuizTest: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [testStartTime, setTestStartTime] = useState<number | null>(null);
   const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
-  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const [testData, setTestData] = useState<TestData>({
     answers: [],
     questionTimes: [],
@@ -37,7 +37,8 @@ const QuizTest: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [isQuizComplete, setIsQuizComplete] = useState(false);
-  const [chapterId, setChapterId] = useState<string | null>(null);
+  const timerStartRef = useRef<number | null>(null);
+  const [timerDisplay, setTimerDisplay] = useState('00:00');
 
   // Load saved quiz state
   useEffect(() => {
@@ -76,34 +77,24 @@ const QuizTest: React.FC = () => {
     };
   }, [isQuizComplete]);
 
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-      }
-    };
-  }, [timerInterval]);
-
   useEffect(() => {
     const loadQuiz = async () => {
       console.log('QuizTest: Starting to load quiz data');
       console.log('QuizTest: quizId from params:', quizId);
       
       try {
-        if (!quizId) {
-          console.log('QuizTest: No quizId found, redirecting to dashboard');
+        if (!grade || !subjectId || !chapterId || !quizId) {
+          console.log('QuizTest: Missing params, redirecting to dashboard', { grade, subjectId, chapterId, quizId });
           navigate('/dashboard');
           return;
         }
 
-        console.log('QuizTest: Fetching quiz data for ID:', quizId);
-        const quizData = await api.getQuiz(quizId);
+        console.log('QuizTest: Fetching quiz data for', { grade, subjectId, chapterId, quizId });
+        const quizData = await api.getQuiz(grade, subjectId, chapterId, quizId);
         console.log('QuizTest: Received quiz data:', quizData);
 
         if (quizData) {
           setQuiz(quizData);
-          setChapterId(quizData.chapterId);
           setTestData(prev => ({
             ...prev,
             answers: new Array(quizData.questions.length).fill('')
@@ -133,8 +124,8 @@ const QuizTest: React.FC = () => {
     const handlePopState = (e: PopStateEvent) => {
       if (isQuizComplete) {
         e.preventDefault();
-        if (chapterId) {
-          navigate(`/subjects/${quiz?.subjectId}/chapters/${chapterId}`);
+        if (subjectId && chapterId) {
+          navigate(`/grader/chapter/${grade}/${subjectId}/${chapterId}`);
         } else {
           navigate('/dashboard');
         }
@@ -143,35 +134,32 @@ const QuizTest: React.FC = () => {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [navigate, isQuizComplete, chapterId, quiz?.subjectId]);
+  }, [navigate, isQuizComplete, subjectId, chapterId, grade]);
 
   useEffect(() => {
     if (quiz && !testStartTime) {
       console.log('QuizTest: Starting test for quiz:', quiz.id);
-      startTest();
+      const now = Date.now();
+      setTestStartTime(now);
+      timerStartRef.current = now;
+      setQuestionStartTime(now);
     }
   }, [quiz]);
 
-  const startTest = () => {
-    console.log('QuizTest: Starting test timer');
-    const now = Date.now();
-    setTestStartTime(now);
-    setQuestionStartTime(now);
-    startTimer();
-  };
-
-  const startTimer = () => {
+  // Timer effect
+  useEffect(() => {
+    if (!quiz) return;
     const interval = setInterval(() => {
-      const timerElement = document.getElementById('timer');
-      if (timerElement) {
-        const elapsed = Math.floor((Date.now() - (testStartTime || Date.now())) / 1000);
+      const start = timerStartRef.current;
+      if (start) {
+        const elapsed = Math.floor((Date.now() - start) / 1000);
         const minutes = Math.floor(elapsed / 60);
         const seconds = elapsed % 60;
-        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        setTimerDisplay(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
       }
     }, 1000);
-    setTimerInterval(interval);
-  };
+    return () => clearInterval(interval);
+  }, [quiz]);
 
   const selectAnswer = (option: string) => {
     setTestData(prev => ({
@@ -229,11 +217,11 @@ const QuizTest: React.FC = () => {
     setQuestionStartTime(Date.now());
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!quiz || !testStartTime) return;
 
     const correctAnswers = Object.values(testData.answers).filter(
-      (answer, index) => answer === String(quiz.questions[index].answer_key)
+      (answer, index) => answer === String(quiz.questions[index].correctIndex)
     ).length;
 
     const totalQuestions = quiz.questions.length;
@@ -254,10 +242,14 @@ const QuizTest: React.FC = () => {
     setIsQuizComplete(true);
     localStorage.removeItem(`quiz_${quizId}_${user?.uid}`);
     addQuizResult(result);
-    
-    // Replace the current history entry to prevent going back
-    window.history.replaceState(null, '', `/quiz-results/${quiz.id}`);
-    navigate(`/quiz-results/${quiz.id}`, { replace: true });
+
+    // Update Firebase with quiz result
+    if (user?.uid) {
+      await progressService.updateScores(user.uid, score);
+      await progressService.updateCompletedQuizzes(user.uid, quiz.id, score, time);
+    }
+    // Redirect to performance summary with score and time
+    navigate('/grader/performance', { state: { score, time } });
   };
 
   const showNotification = (message: string) => {
@@ -301,33 +293,37 @@ const QuizTest: React.FC = () => {
   const progress = ((currentQuestion + 1) / quiz.questions.length) * 100;
 
   return (
-    <div className="quiz-test">
+    <div className="quiz-test-container">
+      {/* Timer at the top */}
+      <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem', margin: '1rem 0' }}>
+        Time: <span id="timer">{timerDisplay}</span>
+      </div>
+      <div className="quiz-test">
         <div className="nav-header">
-        <div className="nav-title">{quiz.title}</div>
-        <div id="timer" className="timer">00:00</div>
+          <div className="nav-title">{quiz.title}</div>
         </div>
         
         <div className="progress-bar">
-        <div 
-          className="progress-fill" 
-          style={{ width: `${progress}%` }}
-        />
+          <div 
+            className="progress-fill" 
+            style={{ width: `${progress}%` }}
+          />
         </div>
         
-      <div className="question-card">
-        <div className="question-text">
-          {currentQ.question}
+        <div className="question-card">
+          <div className="question-text">
+            {currentQ.question}
           </div>
-        <div className="answer-options">
-          {Object.entries(currentQ.options).map(([key, value]) => (
+          <div className="answer-options">
+            {Object.entries(currentQ.options).map(([key, value]) => (
               <div
-              key={key}
-              className={`answer-option ${
-                testData.answers[currentQuestion] === key ? 'selected' : ''
-              }`}
-              onClick={() => selectAnswer(key)}
+                key={key}
+                className={`answer-option ${
+                  testData.answers[currentQuestion] === key ? 'selected' : ''
+                }`}
+                onClick={() => selectAnswer(key)}
               >
-              {value}
+                {value}
               </div>
             ))}
           </div>
@@ -343,10 +339,18 @@ const QuizTest: React.FC = () => {
           </button>
           <button
             className="btn btn-primary"
-          onClick={nextQuestion}
+            onClick={nextQuestion}
           >
-          {currentQuestion === quiz.questions.length - 1 ? 'Submit' : 'Next →'}
+            {currentQuestion === quiz.questions.length - 1 ? 'Submit' : 'Next →'}
           </button>
+        </div>
+        <button
+          className="submit-quiz-btn"
+          style={{ marginTop: '2rem', padding: '1rem 2rem', fontSize: '1.2rem', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+          onClick={handleSubmit}
+        >
+          Submit Quiz
+        </button>
       </div>
     </div>
   );

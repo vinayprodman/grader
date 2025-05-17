@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Sparkles, Users, LineChart } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/Landing.css';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/grader');
+    }
+  }, [user, navigate]);
 
   return (
     <div className="landing-page">

@@ -81,7 +81,15 @@ const updateUserInFirestore = async (userId: string, profile: UserProfile) => {
     const userRef = doc(db, "users", userId);
     await setDoc(userRef, {
       profile,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
+      // Initialize progress fields
+      overallScore: 0,
+      averageScore: 0,
+      quizCount: 0,
+      totalTimeSpent: 0,
+      weeklyTimeSpent: {},
+      completedQuizzes: {},
+      lastActive: new Date().toISOString()
     }, { merge: true });
     console.log('Successfully updated user in Firestore');
   } catch (error) {
@@ -289,12 +297,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (!userDoc.exists()) {
         console.log('Creating new user document');
-        // Create initial user document
+        // Create initial user document with progress fields
         await setDoc(userRef, {
           email: result.user.email,
           displayName: result.user.displayName,
           createdAt: serverTimestamp(),
-          lastLogin: serverTimestamp()
+          lastLogin: serverTimestamp(),
+          // Initialize progress fields
+          overallScore: 0,
+          averageScore: 0,
+          quizCount: 0,
+          totalTimeSpent: 0,
+          weeklyTimeSpent: {},
+          completedQuizzes: {},
+          lastActive: new Date().toISOString()
         });
       } else {
         console.log('Updating last login for existing user');

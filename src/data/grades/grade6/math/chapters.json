@@ -1,0 +1,32 @@
+{
+    "class": 6,
+    "subject": "Mathematics",
+    "chapters": [
+      {
+        "id": 1,
+        "title": "Knowing Our Numbers",
+        "description": "Introduction to large numbers, comparing and forming numbers, and the Indian and International number systems."
+      },
+      {
+        "id": 2,
+        "title": "Whole Numbers",
+        "description": "Concept of whole numbers, number line, and basic properties like closure, commutativity, and associativity."
+      },
+      {
+        "id": 3,
+        "title": "Playing with Numbers",
+        "description": "Understanding factors, multiples, prime and composite numbers, divisibility rules, and prime factorization."
+      },
+      {
+        "id": 4,
+        "title": "Basic Geometrical Ideas",
+        "description": "Introduction to points, lines, line segments, rays, angles, triangles, quadrilaterals, and circles."
+      },
+      {
+        "id": 5,
+        "title": "Understanding Elementary Shapes",
+        "description": "Learning about different types of shapes and measuring line segments, angles, and types of triangles and quadrilaterals."
+      }
+    ]
+  }
+  

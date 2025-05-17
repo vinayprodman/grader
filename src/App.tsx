@@ -3,12 +3,12 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { QuizProvider } from './contexts/QuizContext';
 import Landing from './components/Landing';
-import Login from './components/Login';
-import Signup from './components/Signup';
+import Login from './components/auth/Login';
+import Signup from './components/auth/Signup';
 import Dashboard from './components/dashboard/Dashboard';
-import ProfileSetup from './components/ProfileSetup';
-import ChapterList from './components/chapters/ChapterList';
-import ChapterDetail from './components/chapters/ChapterDetail';
+import ProfileSetup from './components/auth/ProfileSetup';
+import SubjectDetail from './components/subjects/SubjectDetail';
+import ChapterDetail from './components/chapters/ChapterDetail.tsx';
 import QuizTest from './components/quiz/QuizTest';
 import QuizResults from './components/quiz/QuizResults';
 import PerformanceSummary from './components/PerformanceSummary';
@@ -38,7 +38,7 @@ const App: React.FC = () => {
 
           {/* Protected routes */}
           <Route
-            path="/dashboard"
+            path="/grader"
             element={
               <ProtectedRoute>
                 <Dashboard />
@@ -54,15 +54,15 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/subjects/:subjectId"
+            path="/grader/subjects/:grade/:subjectId"
             element={
               <ProtectedRoute>
-                <ChapterList />
+                <SubjectDetail />
               </ProtectedRoute>
             }
           />
           <Route
-            path="/subjects/:subjectId/chapters/:chapterId"
+            path="/grader/chapter/:grade/:subjectId/:chapterId"
             element={
               <ProtectedRoute>
                 <ChapterDetail />
@@ -70,7 +70,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/quiz/:quizId"
+            path="/grader/quiz/:grade/:subjectId/:chapterId/:quizId"
             element={
               <ProtectedRoute>
                 <QuizTest />
@@ -78,7 +78,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/quiz-results/:quizId"
+            path="/grader/quiz-results/:quizId"
             element={
               <ProtectedRoute>
                 <QuizResults />
@@ -86,7 +86,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/performance"
+            path="/grader/performance"
             element={
               <ProtectedRoute>
                 <PerformanceSummary />

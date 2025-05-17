@@ -1,0 +1,103 @@
+{
+    "id": 2,
+    "title": "Components of Food",
+    "description": "Learn about different nutrients, balanced diet, and food components.",
+    "questions": [
+      {
+        "id": 1,
+        "question": "Which of these is a carbohydrate?",
+        "options": ["Meat", "Rice", "Eggs", "Milk"],
+        "correctIndex": 1,
+        "explanation": "Rice is a carbohydrate as it is rich in starch, while meat, eggs, and milk are sources of protein."
+      },
+      {
+        "id": 2,
+        "question": "What is the main function of proteins in our body?",
+        "options": [
+          "Provide energy",
+          "Build and repair tissues",
+          "Store energy",
+          "Protect organs"
+        ],
+        "correctIndex": 1,
+        "explanation": "Proteins are essential for building and repairing body tissues, including muscles, skin, and organs."
+      },
+      {
+        "id": 3,
+        "question": "Which vitamin is important for healthy bones?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "correctIndex": 3,
+        "explanation": "Vitamin D helps in the absorption of calcium, which is essential for strong bones."
+      },
+      {
+        "id": 4,
+        "question": "What is a balanced diet?",
+        "options": [
+          "A diet with only proteins",
+          "A diet with only carbohydrates",
+          "A diet containing all nutrients in right amounts",
+          "A diet with only fruits and vegetables"
+        ],
+        "correctIndex": 2,
+        "explanation": "A balanced diet includes all essential nutrients (carbohydrates, proteins, fats, vitamins, and minerals) in the right proportions."
+      },
+      {
+        "id": 5,
+        "question": "Which of these is a good source of dietary fiber?",
+        "options": ["White bread", "Whole grains", "Meat", "Fish"],
+        "correctIndex": 1,
+        "explanation": "Whole grains are rich in dietary fiber, which helps in digestion and maintaining gut health."
+      },
+      {
+        "id": 6,
+        "question": "What is the main function of carbohydrates?",
+        "options": [
+          "Build muscles",
+          "Provide energy",
+          "Strengthen bones",
+          "Protect organs"
+        ],
+        "correctIndex": 1,
+        "explanation": "Carbohydrates are the body's main source of energy, providing fuel for daily activities."
+      },
+      {
+        "id": 7,
+        "question": "Which mineral is important for healthy blood?",
+        "options": ["Calcium", "Iron", "Sodium", "Potassium"],
+        "correctIndex": 1,
+        "explanation": "Iron is essential for making hemoglobin, which carries oxygen in the blood."
+      },
+      {
+        "id": 8,
+        "question": "What is the function of fats in our body?",
+        "options": [
+          "Only provide energy",
+          "Only protect organs",
+          "Provide energy and protect organs",
+          "Only help in digestion"
+        ],
+        "correctIndex": 2,
+        "explanation": "Fats provide energy and also help protect vital organs by acting as a cushion."
+      },
+      {
+        "id": 9,
+        "question": "Which of these is a water-soluble vitamin?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin D", "Vitamin E"],
+        "correctIndex": 1,
+        "explanation": "Vitamin B is water-soluble, meaning it dissolves in water and needs to be replenished regularly."
+      },
+      {
+        "id": 10,
+        "question": "What happens if we don't get enough vitamin C?",
+        "options": [
+          "Weak bones",
+          "Poor vision",
+          "Scurvy",
+          "Anemia"
+        ],
+        "correctIndex": 2,
+        "explanation": "Vitamin C deficiency can lead to scurvy, which causes bleeding gums and poor wound healing."
+      }
+    ]
+  }
+  

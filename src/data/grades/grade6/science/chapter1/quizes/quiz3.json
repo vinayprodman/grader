@@ -1,0 +1,102 @@
+{
+  "id": 3,
+  "title": "Fiber to Fabric",
+  "description": "Learn about natural and synthetic fibers, their sources, and the process of making fabric.",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which of these is a natural fiber?",
+      "options": ["Nylon", "Polyester", "Cotton", "Acrylic"],
+      "correctIndex": 2,
+      "explanation": "Cotton is a natural fiber that comes from the cotton plant, while nylon, polyester, and acrylic are synthetic fibers."
+    },
+    {
+      "id": 2,
+      "question": "What is the process of making yarn from fibers called?",
+      "options": [
+        "Weaving",
+        "Spinning",
+        "Knitting",
+        "Dyeing"
+      ],
+      "correctIndex": 1,
+      "explanation": "Spinning is the process of making yarn by twisting fibers together."
+    },
+    {
+      "id": 3,
+      "question": "Which of these is a synthetic fiber?",
+      "options": ["Wool", "Silk", "Rayon", "Jute"],
+      "correctIndex": 2,
+      "explanation": "Rayon is a synthetic fiber made from wood pulp, while wool, silk, and jute are natural fibers."
+    },
+    {
+      "id": 4,
+      "question": "What is the process of making fabric from yarn called?",
+      "options": [
+        "Spinning",
+        "Weaving",
+        "Dyeing",
+        "Bleaching"
+      ],
+      "correctIndex": 1,
+      "explanation": "Weaving is the process of making fabric by interlacing two sets of yarn at right angles."
+    },
+    {
+      "id": 5,
+      "question": "Which of these is obtained from animals?",
+      "options": ["Cotton", "Jute", "Wool", "Linen"],
+      "correctIndex": 2,
+      "explanation": "Wool is obtained from sheep and other animals, while cotton, jute, and linen come from plants."
+    },
+    {
+      "id": 6,
+      "question": "What is the main source of silk?",
+      "options": [
+        "Sheep",
+        "Silkworm",
+        "Cotton plant",
+        "Jute plant"
+      ],
+      "correctIndex": 1,
+      "explanation": "Silk is obtained from the cocoon of the silkworm."
+    },
+    {
+      "id": 7,
+      "question": "Which of these is a property of synthetic fibers?",
+      "options": ["Biodegradable", "Water-resistant", "Expensive", "Natural"],
+      "correctIndex": 1,
+      "explanation": "Synthetic fibers are often water-resistant, while natural fibers are biodegradable and can absorb water."
+    },
+    {
+      "id": 8,
+      "question": "What is the process of coloring fabric called?",
+      "options": [
+        "Weaving",
+        "Spinning",
+        "Dyeing",
+        "Knitting"
+      ],
+      "correctIndex": 2,
+      "explanation": "Dyeing is the process of adding color to fabric or yarn."
+    },
+    {
+      "id": 9,
+      "question": "Which of these is a natural fiber obtained from plants?",
+      "options": ["Wool", "Silk", "Jute", "Nylon"],
+      "correctIndex": 2,
+      "explanation": "Jute is a natural fiber obtained from the jute plant, while wool and silk come from animals, and nylon is synthetic."
+    },
+    {
+      "id": 10,
+      "question": "What is the main advantage of synthetic fibers?",
+      "options": [
+        "They are biodegradable",
+        "They are expensive",
+        "They are durable and easy to maintain",
+        "They are natural"
+      ],
+      "correctIndex": 2,
+      "explanation": "Synthetic fibers are known for their durability and ease of maintenance, though they are not biodegradable."
+    }
+  ]
+}

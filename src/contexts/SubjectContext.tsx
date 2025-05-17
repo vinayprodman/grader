@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Chapter, Quiz, scienceChapters } from '../data/subjectData';
+import { Chapter, Quiz } from '../types/education';
 import { useAuth } from './AuthContext';
+import { api } from '../services/api';
 
 interface SubjectContextType {
   chapters: Chapter[];
   currentChapter: Chapter | null;
-  setCurrentChapter: (chapter: Chapter) => void;
+  currentQuizzes: Quiz[];
+  setCurrentChapter: (chapter: Chapter | null) => void;
   unlockChapter: (chapterId: string) => void;
   unlockQuiz: (chapterId: string, quizId: string) => void;
   getNextQuiz: (currentQuizId: string) => Quiz | null;
@@ -16,73 +18,76 @@ const SubjectContext = createContext<SubjectContextType>({} as SubjectContextTyp
 export const useSubject = () => useContext(SubjectContext);
 
 export const SubjectProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [chapters, setChapters] = useState<Chapter[]>(scienceChapters);
+  const [chapters, setChapters] = useState<Chapter[]>([]);
   const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null);
+  const [currentQuizzes, setCurrentQuizzes] = useState<Quiz[]>([]);
   const { user } = useAuth();
 
   useEffect(() => {
     // Load user progress from localStorage or database
     if (user) {
-      const savedProgress = localStorage.getItem(`quizProgress_${user.id}`);
+      const savedProgress = localStorage.getItem(`quizProgress_${user.uid}`);
       if (savedProgress) {
         setChapters(JSON.parse(savedProgress));
       }
     }
   }, [user]);
 
+  useEffect(() => {
+    // Load quizzes when current chapter changes
+    if (currentChapter && user) {
+      api.getChapterQuizzes('6', 'science', currentChapter.id.toString())
+        .then(quizzes => setCurrentQuizzes(quizzes))
+        .catch(error => console.error('Error loading quizzes:', error));
+    }
+  }, [currentChapter, user]);
+
   const unlockChapter = (chapterId: string) => {
     setChapters(prevChapters => {
       const newChapters = prevChapters.map(chapter => {
-        if (chapter.id === chapterId) {
+        if (chapter.id.toString() === chapterId) {
           return { ...chapter, isLocked: false };
         }
         return chapter;
       });
       
       if (user) {
-        localStorage.setItem(`quizProgress_${user.id}`, JSON.stringify(newChapters));
+        localStorage.setItem(`quizProgress_${user.uid}`, JSON.stringify(newChapters));
       }
       return newChapters;
     });
   };
 
   const unlockQuiz = (chapterId: string, quizId: string) => {
-    setChapters(prevChapters => {
-      const newChapters = prevChapters.map(chapter => {
-        if (chapter.id === chapterId) {
-          const updatedQuizzes = chapter.quizzes.map(quiz => {
-            if (quiz.id === quizId) {
-              return { ...quiz, isLocked: false };
-            }
-            return quiz;
-          });
-          return { ...chapter, quizzes: updatedQuizzes };
+    setCurrentQuizzes(prevQuizzes => {
+      const newQuizzes = prevQuizzes.map(quiz => {
+        if (quiz.id.toString() === quizId) {
+          return { ...quiz, isLocked: false };
         }
-        return chapter;
+        return quiz;
       });
       
       if (user) {
-        localStorage.setItem(`quizProgress_${user.id}`, JSON.stringify(newChapters));
+        localStorage.setItem(`quizProgress_${user.uid}`, JSON.stringify(newQuizzes));
       }
-      return newChapters;
+      return newQuizzes;
     });
   };
 
   const getNextQuiz = (currentQuizId: string): Quiz | null => {
-    if (!currentChapter) return null;
+    if (!currentQuizzes.length) return null;
     
-    const currentQuizIndex = currentChapter.quizzes.findIndex(q => q.id === currentQuizId);
-    if (currentQuizIndex === -1 || currentQuizIndex === currentChapter.quizzes.length - 1) {
-      return null;
-    }
+    const currentIndex = currentQuizzes.findIndex(quiz => quiz.id.toString() === currentQuizId);
+    if (currentIndex === -1 || currentIndex === currentQuizzes.length - 1) return null;
     
-    return currentChapter.quizzes[currentQuizIndex + 1];
+    return currentQuizzes[currentIndex + 1];
   };
 
   return (
     <SubjectContext.Provider value={{
       chapters,
       currentChapter,
+      currentQuizzes,
       setCurrentChapter,
       unlockChapter,
       unlockQuiz,

@@ -1,80 +1,44 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/PerformanceSummary.css';
 
 const PerformanceSummary = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { score, time } = location.state || {};
+
+  // Format time in mm:ss
+  const formatTime = (ms: number) => {
+    if (!ms) return '00:00';
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className="performance-container">
       <div className="nav-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          ← Back
-        </button>
-        <div className="nav-title">Performance Summary</div>
+        <div className="nav-title">Quiz Summary</div>
       </div>
-
-      <div className="card animate-slide-up">
-        <h3 style={{ marginBottom: '0.5rem' }}>Performance Overview</h3>
-        <p style={{ color: 'var(--gray-600)', marginBottom: '1.5rem' }}>
-          Track your child's progress
-        </p>
-
-        <div className="subject-performance">
-          <div className="subject-header">
-            <div className="subject-info">
-              <div className="subject-icon completed">📊</div>
-              <div>
-                <div className="subject-name">Fractions</div>
-                <div className="subject-status">Completed</div>
-              </div>
-            </div>
-            <span className="status-icon completed">✓</span>
+      <div className="card animate-slide-up" style={{ textAlign: 'center' }}>
+        <h3 style={{ marginBottom: '1rem' }}>Your Quiz Results</h3>
+        <div className="stats-grid" style={{ marginBottom: '2rem' }}>
+          <div className="stat-item">
+            <div className="stat-label">Score</div>
+            <div className="stat-value">{score !== undefined ? `${score.toFixed(2)}%` : '--'}</div>
           </div>
-
-          <div className="stats-grid">
-            <div className="stat-item">
-              <div className="stat-label">Average Score</div>
-              <div className="stat-value">85%</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-label">Time Spent</div>
-              <div className="stat-value">12:30</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-label">Accuracy</div>
-              <div className="stat-value">90%</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-label">Weak Areas</div>
-              <div className="stat-value">Mixed Numbers</div>
-            </div>
+          <div className="stat-item">
+            <div className="stat-label">Time Taken</div>
+            <div className="stat-value">{formatTime(time)}</div>
           </div>
         </div>
-
-        <div className="subject-performance">
-          <div className="subject-header">
-            <div className="subject-info">
-              <div className="subject-icon in-progress">🔢</div>
-              <div>
-                <div className="subject-name">Decimals</div>
-                <div className="subject-status">In Progress</div>
-              </div>
-            </div>
-            <span className="status-icon in-progress">0/10</span>
-          </div>
-
-          <div className="test-progress">
-            <div className="progress-item">
-              <div className="progress-dot available"></div>
-              <span>Tests available: 3</span>
-            </div>
-            <div className="progress-item">
-              <div className="progress-dot locked"></div>
-              <span>Locked: 7</span>
-            </div>
-          </div>
-        </div>
+        <button
+          className="btn btn-primary"
+          onClick={() => navigate('/grader')}
+        >
+          Return to Dashboard
+        </button>
       </div>
     </div>
   );

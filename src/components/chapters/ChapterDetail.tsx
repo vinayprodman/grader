@@ -1,109 +1,116 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { api } from '../../services/api';
+import { useParams, useNavigate } from 'react-router-dom';
+import { loadChapter, loadChapterQuizzes } from '../../utils/dataLoader.tsx';
 import { Chapter, Quiz } from '../../types/education';
 import Loading from '../common/Loading';
 import '../../styles/ChapterDetail.css';
 
 const ChapterDetail: React.FC = () => {
-  const { chapterId } = useParams();
+  const { grade, subjectId, chapterId } = useParams<{ grade: string; subjectId: string; chapterId: string }>();
   const navigate = useNavigate();
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadChapterData = async () => {
-      console.log('ChapterDetail: Starting to load chapter data');
-      console.log('ChapterDetail: chapterId from params:', chapterId);
-      
+    const fetchChapterData = async () => {
       try {
-        if (!chapterId) {
-          console.log('ChapterDetail: No chapterId found, redirecting to dashboard');
-          navigate('/dashboard');
-          return;
+        if (!grade || !subjectId || !chapterId) {
+          throw new Error('Missing required parameters');
         }
 
-        console.log('ChapterDetail: Fetching chapter data for ID:', chapterId);
-        const chapterData = await api.getChapter(chapterId);
-        console.log('ChapterDetail: Received chapter data:', chapterData);
+        console.log('Loading chapter with params:', { grade, subjectId, chapterId });
+        
+        // Add artificial delay to show loading animation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const chapterData = await loadChapter(grade, subjectId, chapterId);
+        console.log('Chapter data loaded:', chapterData);
+        setChapter(chapterData);
 
-        if (chapterData) {
-          setChapter(chapterData);
-          console.log('ChapterDetail: Fetching quizzes for chapter:', chapterId);
-          const quizzesData = await api.getQuizzes(chapterId);
-          console.log('ChapterDetail: Received quizzes data:', quizzesData);
-          setQuizzes(quizzesData);
-        } else {
-          console.log('ChapterDetail: No chapter data found, redirecting to dashboard');
-          navigate('/dashboard');
-        }
+        // Load quizzes for the chapter
+        const quizzesData = await loadChapterQuizzes(grade, subjectId, chapterId);
+        console.log('Quizzes loaded:', quizzesData);
+        setQuizzes(quizzesData);
       } catch (error) {
-        console.error('ChapterDetail: Error loading chapter:', error);
-        navigate('/dashboard');
+        console.error('Error loading chapter:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load chapter');
       } finally {
         setLoading(false);
       }
     };
 
-    loadChapterData();
-  }, [chapterId, navigate]);
-
-  const handleQuizClick = (quiz: Quiz) => {
-    console.log('ChapterDetail: Quiz clicked:', quiz);
-    navigate(`/quiz/${quiz.id}`);
-  };
+    fetchChapterData();
+  }, [grade, subjectId, chapterId, navigate]);
 
   if (loading) {
-    console.log('ChapterDetail: Rendering loading state');
-    return <Loading text="Loading chapter..." fullScreen />;
+    return <Loading text="Loading chapter content..." fullScreen />;
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <h2>Error Loading Chapter</h2>
+        <p>{error}</p>
+        <button onClick={() => navigate(-1)}>Go Back</button>
+      </div>
+    );
   }
 
   if (!chapter) {
-    console.log('ChapterDetail: No chapter found, rendering not found message');
-    return <Loading text="Chapter not found..." fullScreen />;
+    return (
+      <div className="error-container">
+        <h2>Chapter Not Found</h2>
+        <p>The requested chapter could not be found.</p>
+        <button onClick={() => navigate(-1)}>Go Back</button>
+      </div>
+    );
   }
-
-  console.log('ChapterDetail: Rendering chapter with quizzes:', { chapter, quizzes });
 
   return (
     <div className="chapter-detail">
       <div className="nav-header">
-        <button className="btn btn-ghost" onClick={() => navigate(-1)}>
+        <button className="btn-ghost" onClick={() => navigate(-1)}>
           ← Back
         </button>
-        <div className="nav-title">{chapter.title}</div>
+        <h1 className="nav-title">{chapter.title}</h1>
       </div>
 
       <div className="chapter-content">
-        <h3>Available Quizzes</h3>
-        <p className="section-subtitle">Complete quizzes to unlock more content</p>
-        
-        {quizzes.length === 0 ? (
-          <div className="no-quizzes">No quizzes available for this chapter yet.</div>
-        ) : (
-          <div className="test-grid">
+        <p className="chapter-description">{chapter.description}</p>
+
+        <div className="quiz-section">
+          <h2>Available Quizzes</h2>
+          <div className="quiz-list-grid">
             {quizzes.map((quiz, index) => (
-              <button
-                key={quiz.id}
-                className="test-btn"
-                onClick={() => handleQuizClick(quiz)}
+              <div
+                key={`${chapterId}-quiz-${quiz.id}`}
+                className={`quiz-card${index > 0 ? ' locked' : ' unlocked'}`}
+                onClick={() => {
+                  if (index === 0) {
+                    const confirmed = window.confirm('Are you sure you want to start this quiz?');
+                    if (confirmed) {
+                      navigate(`/grader/quiz/${grade}/${subjectId}/${chapterId}/${quiz.id}`);
+                    }
+                  }
+                }}
+                style={{ cursor: index === 0 ? 'pointer' : 'not-allowed' }}
               >
-                <span className="test-info">
-                  <span className="test-icon">
-                    {index + 1}
+                <div className="quiz-card-header">
+                  <span className="quiz-icon">
+                    {index > 0 ? <span role="img" aria-label="locked">🔒</span> : <span role="img" aria-label="start">▶️</span>}
                   </span>
-                  <span>{quiz.title}</span>
-                </span>
-                <span className="test-meta">
-                  <span className="test-details">
-                    {quiz.questions.length} Questions
-                  </span>
-                </span>
-              </button>
+                  <h3 className="quiz-title">{quiz.title}</h3>
+                </div>
+                <p className="quiz-description">{quiz.description}</p>
+                {index > 0 && (
+                  <div className="quiz-locked-msg">Complete previous quiz to unlock</div>
+                )}
+              </div>
             ))}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

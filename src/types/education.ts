@@ -1,38 +1,63 @@
-export interface Subject {
+export interface Question {
   id: string;
-  name: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export interface Test {
+  id: string;
+  title: string;
   description: string;
-  icon: string;
-  grade: number;
+  questions: Question[];
+  timeLimit: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  isLocked: boolean;
+  requiredScore?: number;
 }
 
 export interface Chapter {
   id: string;
-  subjectId: string;
   title: string;
   description: string;
-  order: number;
-  quizzes: string[];
+  questions: Question[];
 }
 
-export interface QuizQuestion {
-  question: string;
-  options: {
-    A: string;
-    B: string;
-    C: string;
-    D: string;
-  };
-  answer_key: number; // 0 for A, 1 for B, 2 for C, 3 for D
+export interface Subject {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  grade: string;
 }
 
 export interface Quiz {
   id: string;
-  chapterId: string;
-  subjectId: string;
   title: string;
   description: string;
-  subject: string;
-  grade: number;
-  questions: QuizQuestion[];
+  questions: Question[];
+  timeLimit: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  isLocked: boolean;
+  requiredScore: number;
+}
+
+export interface UserProgress {
+  userId: string;
+  grade: string;
+  completedQuizzes: {
+    [quizId: string]: {
+      score: number;
+      completedAt: string;
+    };
+  };
+  weeklyTimeSpent: {
+    [weekStart: string]: number;
+  };
+  lastActive: string;
+  overallScore: number;
+  averageScore: number;
+  totalTimeSpent: number;
+  quizCount: number;
 } 

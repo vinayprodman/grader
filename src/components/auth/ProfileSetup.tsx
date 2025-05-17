@@ -1,62 +1,66 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import './ProfileSetup.css';
+import { BookOpen, User, GraduationCap, Calendar } from 'lucide-react';
+import '../../styles/ProfileSetup.css';
 
 const ProfileSetup: React.FC = () => {
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [grade, setGrade] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { updateUserProfile } = useAuth();
-
-  const validateInputs = () => {
-    const ageNum = parseInt(age, 10);
-    if (isNaN(ageNum) || ageNum < 5 || ageNum > 18) {
-      setError("Please enter a valid age between 5 and 18");
-      return false;
-    }
-    if (!grade.trim()) {
-      setError("Please enter your grade");
-      return false;
-    }
-    if (!name.trim()) {
-      setError("Please enter your name");
-      return false;
-    }
-    return true;
-  };
+  const { user, updateUserProfile } = useAuth();
+  const [formData, setFormData] = useState({
+    name: user?.displayName || '',
+    grade: '',
+    age: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    if (!validateInputs()) return;
+    setLoading(true);
+    setError('');
 
     try {
-      setLoading(true);
+      const ageNum = parseInt(formData.age);
+      if (isNaN(ageNum) || ageNum < 5 || ageNum > 18) {
+        throw new Error('Please enter a valid age between 5 and 18');
+      }
+
       await updateUserProfile({
-        name,
-        age: parseInt(age, 10),
-        grade,
+        name: formData.name,
+        email: user?.email || '',
+        grade: formData.grade,
+        age: ageNum,
         createdAt: new Date().toISOString()
       });
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message || "Failed to create profile. Please try again.");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update profile';
+      setError(errorMessage);
+      console.error('Error updating profile:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   return (
     <div className="profile-setup-container">
-      <div className="profile-setup-card animate-slide-up">
+      <div className="profile-setup-card">
         <div className="profile-setup-header">
-          <div className="app-logo">📚</div>
-          <h1 className="app-title">Grader</h1>
-          <p className="app-subtitle">Tell us about yourself</p>
+          <div className="logo">
+            <BookOpen size={48} color="#4a6ee0" />
+            <h1>grader</h1>
+          </div>
+          <h2>Complete Your Profile</h2>
+          <p>Help us personalize your learning experience</p>
         </div>
 
         {error && (
@@ -67,55 +71,36 @@ const ProfileSetup: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="profile-form">
           <div className="form-group">
-            <label className="form-label" htmlFor="name">Your Name</label>
+            <label htmlFor="name">
+              <User size={20} />
+              Full Name
+            </label>
             <input
               type="text"
               id="name"
-              className="form-control"
-              placeholder="Enter your name"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setError(null);
-              }}
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
               required
-              disabled={loading}
+              placeholder="Enter your full name"
+              className="form-control"
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="age">Age</label>
-            <input
-              type="number"
-              id="age"
-              className="form-control"
-              placeholder="Enter your age"
-              value={age}
-              onChange={(e) => {
-                setAge(e.target.value);
-                setError(null);
-              }}
-              min="5"
-              max="18"
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="grade">Grade</label>
+            <label htmlFor="grade">
+              <GraduationCap size={20} />
+              Grade Level
+            </label>
             <select
               id="grade"
-              className="form-control"
-              value={grade}
-              onChange={(e) => {
-                setGrade(e.target.value);
-                setError(null);
-              }}
+              name="grade"
+              value={formData.grade}
+              onChange={handleChange}
               required
-              disabled={loading}
+              className="form-control"
             >
-              <option value="">Select Grade</option>
+              <option value="">Select your grade</option>
               <option value="1">Grade 1</option>
               <option value="2">Grade 2</option>
               <option value="3">Grade 3</option>
@@ -127,13 +112,42 @@ const ProfileSetup: React.FC = () => {
             </select>
           </div>
 
-          <button
-            type="submit"
-            className={`btn btn-primary btn-block ${loading ? 'loading' : ''}`}
-            disabled={loading}
-          >
-            {loading ? 'Creating Profile...' : 'Create Profile'}
-          </button>
+          <div className="form-group">
+            <label htmlFor="age">
+              <Calendar size={20} />
+              Age
+            </label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              value={formData.age}
+              onChange={handleChange}
+              required
+              min="5"
+              max="18"
+              placeholder="Enter your age"
+              className="form-control"
+            />
+          </div>
+
+          <div className="form-actions">
+            <button 
+              type="button" 
+              className="btn btn-secondary"
+              onClick={() => navigate('/dashboard')}
+              disabled={loading}
+            >
+              Skip for Now
+            </button>
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : 'Complete Setup'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

@@ -1,0 +1,77 @@
+{
+  "id": 4,
+  "title": "Estimation, Rounding, and Brackets",
+  "description": "Round numbers to the nearest place value and evaluate bracketed expressions.",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Round 43,289 to the nearest thousand.",
+      "options": ["43,000", "44,000", "43,300", "43,290"],
+      "correctIndex": 0,
+      "explanation": "43,289 is closer to 43,000 than to 44,000."
+    },
+    {
+      "id": 2,
+      "question": "Round 67,500 to the nearest hundred.",
+      "options": ["67,500", "67,600", "67,000", "68,000"],
+      "correctIndex": 0,
+      "explanation": "A midpoint (500) is rounded up only at the next thousand; to the nearest hundred it stays 67,500."
+    },
+    {
+      "id": 3,
+      "question": "Estimate 3,214 + 5,678 by rounding each addend to the nearest hundred.",
+      "options": ["8,800", "8,900", "9,000", "9,100"],
+      "correctIndex": 1,
+      "explanation": "3,214 ≈ 3,200 and 5,678 ≈ 5,700 → 3,200 + 5,700 = 8,900."
+    },
+    {
+      "id": 4,
+      "question": "Round 83,749 to the nearest ten-thousand.",
+      "options": ["80,000", "90,000", "83,700", "84,000"],
+      "correctIndex": 0,
+      "explanation": "83,749 is closer to 80,000 than 90,000."
+    },
+    {
+      "id": 5,
+      "question": "Evaluate 4 × (100 + 25).",
+      "options": ["400", "425", "500", "525"],
+      "correctIndex": 2,
+      "explanation": "100 + 25 = 125; 4 × 125 = 500."
+    },
+    {
+      "id": 6,
+      "question": "Evaluate (50 − 5) × 2.",
+      "options": ["90", "95", "100", "110"],
+      "correctIndex": 0,
+      "explanation": "50 − 5 = 45; 45 × 2 = 90."
+    },
+    {
+      "id": 7,
+      "question": "Evaluate 3 × (12 + 4) − 5.",
+      "options": ["41", "43", "47", "49"],
+      "correctIndex": 1,
+      "explanation": "12 + 4 = 16; 3 × 16 = 48; 48 − 5 = 43."
+    },
+    {
+      "id": 8,
+      "question": "Round 9,876 to the nearest ten.",
+      "options": ["9,870", "9,880", "9,900", "9,800"],
+      "correctIndex": 1,
+      "explanation": "Since 6 ≥ 5, round up the tens digit to 8 → 9,880."
+    },
+    {
+      "id": 9,
+      "question": "Round 9,876 to the nearest hundred.",
+      "options": ["9,800", "9,870", "9,900", "10,000"],
+      "correctIndex": 2,
+      "explanation": "9,876 is closer to 9,900 than to 9,800."
+    },
+    {
+      "id": 10,
+      "question": "Which grouping makes 6 + 3 × 2 equal 18?",
+      "options": ["6 + (3 × 2)", "(6 + 3) × 2", "6 + 3 × 2", "(6 + (3 × 2))"],
+      "correctIndex": 1,
+      "explanation": "Grouping (6 + 3) first gives 9; 9 × 2 = 18."
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "id": 3,
+  "title": "International Number System",
+  "description": "Work with place values and numerals in the International system.",
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is the place value of 6 in 3,672,981 (International system)?",
+      "options": ["Hundreds", "Thousands", "Hundred Thousands", "Millions"],
+      "correctIndex": 2,
+      "explanation": "6 is in the hundred-thousands place (600,000)."
+    },
+    {
+      "id": 2,
+      "question": "Write 2,508,109 in words (International system).",
+      "options": [
+        "Two million five hundred eight thousand one hundred nine",
+        "Two million fifty-eight thousand one hundred nine",
+        "Two million five hundred eight hundred nine",
+        "Two billion five hundred eight thousand one hundred nine"
+      ],
+      "correctIndex": 0,
+      "explanation": "Correct reading is: Two million five hundred eight thousand one hundred nine."
+    },
+    {
+      "id": 3,
+      "question": "How many zeros are there in one million?",
+      "options": ["5", "6", "7", "8"],
+      "correctIndex": 1,
+      "explanation": "One million = 1,000,000, which contains six zeros."
+    },
+    {
+      "id": 4,
+      "question": "Write the numeral for “Four million seventy-three thousand four hundred twenty.”",
+      "options": ["4,730,420", "4,073,420", "4,703,420", "4,073,402"],
+      "correctIndex": 1,
+      "explanation": "Four million (4,000,000) + seventy-three thousand (73,000) + 420 = 4,073,420."
+    },
+    {
+      "id": 5,
+      "question": "Which period contains hundreds, tens, and ones in the International system?",
+      "options": ["Ones period", "Thousands period", "Millions period", "Hundreds period"],
+      "correctIndex": 0,
+      "explanation": "The ones period comprises hundreds, tens, and ones."
+    },
+    {
+      "id": 6,
+      "question": "What digit is in the ten-thousands place of 8,726,451?",
+      "options": ["2", "6", "7", "4"],
+      "correctIndex": 0,
+      "explanation": "2 is in the ten-thousands place in 8,726,451."
+    },
+    {
+      "id": 7,
+      "question": "What is the value of 9 in 9,345,012?",
+      "options": ["9", "900", "9,000", "9,000,000"],
+      "correctIndex": 3,
+      "explanation": "9 is in the millions place → 9 × 1,000,000 = 9,000,000."
+    },
+    {
+      "id": 8,
+      "question": "What is the predecessor of one million?",
+      "options": ["999,999", "1,000,001", "1,000,000", "9,999,999"],
+      "correctIndex": 0,
+      "explanation": "One less than 1,000,000 is 999,999."
+    },
+    {
+      "id": 9,
+      "question": "What is the smallest 7-digit number?",
+      "options": ["1,000,000", "100,000", "10,00,000", "999,999"],
+      "correctIndex": 0,
+      "explanation": "1,000,000 is the smallest number with seven digits."
+    },
+    {
+      "id": 10,
+      "question": "Which number is greater: 5,000,999 or 4,999,999?",
+      "options": ["5,000,999", "4,999,999", "Both are equal", "Cannot be determined"],
+      "correctIndex": 0,
+      "explanation": "5,000,999 is greater because its millions digit (5) exceeds that of 4,999,999."
+    }
+  ]
+}
