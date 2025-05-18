@@ -125,7 +125,7 @@ const QuizTest: React.FC = () => {
       if (isQuizComplete) {
         e.preventDefault();
         if (subjectId && chapterId) {
-          navigate(`/grader/chapter/${grade}/${subjectId}/${chapterId}`);
+          navigate(`/chapter/${grade}/${subjectId}/${chapterId}`);
         } else {
           navigate('/dashboard');
         }
@@ -249,7 +249,7 @@ const QuizTest: React.FC = () => {
       await progressService.updateCompletedQuizzes(user.uid, quiz.id, score, time);
     }
     // Redirect to performance summary with score and time
-    navigate('/grader/performance', { state: { score, time } });
+    navigate('/performance', { state: { score, time } });
   };
 
   const showNotification = (message: string) => {
@@ -344,6 +344,7 @@ const QuizTest: React.FC = () => {
             {currentQuestion === quiz.questions.length - 1 ? 'Submit' : 'Next →'}
           </button>
         </div>
+        // For dev only need to remove
         <button
           className="submit-quiz-btn"
           style={{ marginTop: '2rem', padding: '1rem 2rem', fontSize: '1.2rem', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}

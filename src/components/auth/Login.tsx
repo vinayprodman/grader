@@ -1,18 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import Loading from "../common/Loading";
 import graderLogo from "../../assets/grader_logo.png";
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, googleSignIn } = useAuth();
+  const { login, googleSignIn, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || "/";
+
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,9 +29,22 @@ const Login = () => {
 
     try {
       await login(email, password);
-      navigate(from);
+      // If login throws, error will be caught below. If not, navigation is handled in AuthContext.
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred during sign in');
+      let message = 'An error occurred during sign in';
+      if (error instanceof Error) {
+        if (
+          error.message.includes('auth/invalid-credential') ||
+          error.message.includes('auth/user-not-found') ||
+          error.message.includes('auth/wrong-password') ||
+          error.message.includes('No account found with this email')
+        ) {
+          message = 'Invalid email or password. Please try again or sign up if you don\'t have an account.';
+        } else {
+          message = error.message;
+        }
+      }
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -219,20 +240,7 @@ const Login = () => {
           </Link>
         </p>
 
-        <div
-          style={{
-            marginTop: "20px",
-            padding: "15px",
-            background: "#f8f9fa",
-            borderRadius: "4px",
-            fontSize: "14px",
-            color: "#666",
-          }}
-        >
-          <p style={{ marginBottom: "5px", fontWeight: 500 }}>Demo Account:</p>
-          <p>Email: demo@example.com</p>
-          <p>Password: demo123</p>
-        </div>
+        {/* Demo account info removed as requested */}
       </div>
     </div>
   );

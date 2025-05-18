@@ -33,7 +33,9 @@ export const getSubjectInfo = (subjectId: string, grade: string): Subject => {
 // Helper function to load all chapters for a subject
 export const loadSubjectChapters = async (grade: string, subjectId: string): Promise<Chapter[]> => {
   try {
-    const module = await import(`../data/grades/grade${grade}/${subjectId}/chapters.json`);
+    // Remove any non-numeric characters (like 'th Grade', 'st Grade', etc.) from grade
+    const numericGrade = grade.replace(/\D/g, "");
+    const module = await import(`../data/grades/grade_${numericGrade}/${subjectId}/chapters.json`);
     return module.chapters;
   } catch (error) {
     console.error('Error loading subject chapters:', error);
@@ -44,7 +46,9 @@ export const loadSubjectChapters = async (grade: string, subjectId: string): Pro
 // Helper function to load a specific chapter
 export const loadChapter = async (grade: string, subjectId: string, chapterId: string): Promise<Chapter> => {
   try {
-    const module = await import(`../data/grades/grade${grade}/${subjectId}/chapters.json`);
+    // Remove any non-numeric characters from grade
+    const numericGrade = grade.replace(/\D/g, "");
+    const module = await import(`../data/grades/grade_${numericGrade}/${subjectId}/chapters.json`);
     // Convert chapterId to number if it's in format "chapterX"
     const numericId = chapterId.startsWith('chapter') ? parseInt(chapterId.replace('chapter', '')) : parseInt(chapterId);
     
@@ -66,18 +70,20 @@ export const loadChapter = async (grade: string, subjectId: string, chapterId: s
 // Helper function to load quizzes for a chapter
 export const loadChapterQuizzes = async (grade: string, subjectId: string, chapterId: string): Promise<Quiz[]> => {
   try {
+    // Remove any non-numeric characters from grade
+    const numericGrade = grade.replace(/\D/g, "");
     const numericChapterId = chapterId.startsWith('chapter') ? chapterId.replace('chapter', '') : chapterId;
     // Use a static glob for all quiz files
     const quizModules = import.meta.glob('../data/grades/grade*/**/chapter*/quizes/quiz*.json');
     // Build the exact directory path for the current chapter
-    const wantedDir = `/grade${grade}/${subjectId}/chapter${numericChapterId}/quizes/`;
+    const wantedDir = `/grade_${numericGrade}/${subjectId}/chapter${numericChapterId}/quizes/`;
     // Only match quiz files that are in the exact chapter directory
     const filteredQuizEntries = Object.entries(quizModules).filter(([path]) => {
       // Normalize path to use forward slashes
       const normalizedPath = path.replace(/\\/g, '/');
       // Ensure the path contains the wantedDir and is directly inside it (not a substring match)
       return normalizedPath.includes(wantedDir) &&
-        new RegExp(`/grade${grade}/${subjectId}/chapter${numericChapterId}/quizes/quiz\\d+\\.json$`).test(normalizedPath);
+        new RegExp(`/grade_${numericGrade}/${subjectId}/chapter${numericChapterId}/quizes/quiz\\d+\\.json$`).test(normalizedPath);
     });
     // Debug log: show which files are being matched
     console.log('Matched quiz files for chapter', chapterId, ':', filteredQuizEntries.map(([path]) => path));
@@ -108,9 +114,11 @@ export const loadChapterQuizzes = async (grade: string, subjectId: string, chapt
 
 export const loadQuiz = async (grade: string, subjectId: string, chapterId: string, quizId: string): Promise<Quiz> => {
   try {
+    // Remove any non-numeric characters from grade
+    const numericGrade = grade.replace(/\D/g, "");
     const numericChapterId = chapterId.startsWith('chapter') ? chapterId.replace('chapter', '') : chapterId;
     const quizModules = import.meta.glob('../data/grades/grade*/**/chapter*/quizes/quiz*.json');
-    const wantedPath = `/grade${grade}/${subjectId}/chapter${numericChapterId}/quizes/quiz${quizId}.json`;
+    const wantedPath = `/grade_${numericGrade}/${subjectId}/chapter${numericChapterId}/quizes/quiz${quizId}.json`;
     const entry = Object.entries(quizModules).find(([path]) => path.replace(/\\/g, '/').endsWith(wantedPath));
     if (!entry) {
       throw new Error(`Quiz file not found for ${wantedPath}`);
@@ -122,4 +130,4 @@ export const loadQuiz = async (grade: string, subjectId: string, chapterId: stri
     console.error('Error loading quiz:', error);
     throw new Error('Failed to load quiz');
   }
-}; 
+};

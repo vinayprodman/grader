@@ -9,9 +9,9 @@ const Landing: React.FC = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
-      navigate('/grader');
-    }
+    // if (user) {
+    //   navigate('/dashboard');
+    // }
   }, [user, navigate]);
 
   return (

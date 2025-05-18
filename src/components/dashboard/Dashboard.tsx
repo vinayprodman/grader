@@ -132,7 +132,7 @@ const Dashboard: React.FC = () => {
 
   const handleSubjectClick = (subjectId: string) => {
     const grade = user?.profile?.grade || '1';
-    navigate(`/grader/subjects/${grade}/${subjectId}`);
+    navigate(`/subjects/${grade}/${subjectId}`);
   };
 
   const handleProfileSetup = () => {

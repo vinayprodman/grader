@@ -91,7 +91,7 @@ const ChapterDetail: React.FC = () => {
                   if (index === 0) {
                     const confirmed = window.confirm('Are you sure you want to start this quiz?');
                     if (confirmed) {
-                      navigate(`/grader/quiz/${grade}/${subjectId}/${chapterId}/${quiz.id}`);
+                      navigate(`/quiz/${grade}/${subjectId}/${chapterId}/${quiz.id}`);
                     }
                   }
                 }}

@@ -57,7 +57,7 @@ const QuizCompletionContent: React.FC = () => {
   }, []);
   
   const handleTakeAnotherQuiz = () => {
-    navigate('/');
+    navigate('/dashboard');
   };
   
   const handleViewProgress = () => {

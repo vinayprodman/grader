@@ -38,7 +38,7 @@ const App: React.FC = () => {
 
           {/* Protected routes */}
           <Route
-            path="/grader"
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
@@ -54,7 +54,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/grader/subjects/:grade/:subjectId"
+            path="/subjects/:grade/:subjectId"
             element={
               <ProtectedRoute>
                 <SubjectDetail />
@@ -62,7 +62,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/grader/chapter/:grade/:subjectId/:chapterId"
+            path="/chapter/:grade/:subjectId/:chapterId"
             element={
               <ProtectedRoute>
                 <ChapterDetail />
@@ -70,7 +70,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/grader/quiz/:grade/:subjectId/:chapterId/:quizId"
+            path="/quiz/:grade/:subjectId/:chapterId/:quizId"
             element={
               <ProtectedRoute>
                 <QuizTest />
@@ -78,7 +78,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/grader/quiz-results/:quizId"
+            path="/quiz-results/:quizId"
             element={
               <ProtectedRoute>
                 <QuizResults />
@@ -86,7 +86,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/grader/performance"
+            path="/performance"
             element={
               <ProtectedRoute>
                 <PerformanceSummary />

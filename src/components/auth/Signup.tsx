@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import graderLogo from "../../assets/grader_logo.png";
+
 
 const Signup: React.FC = () => {
   const [name, setName] = useState("");
@@ -12,7 +13,15 @@ const Signup: React.FC = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { register, googleSignIn } = useAuth();
+  const { register, googleSignIn, user } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
 
   const gradeOptions = [
     "Kindergarten",
@@ -44,8 +53,28 @@ const Signup: React.FC = () => {
       setIsLoading(true);
       await register(email, password, name, age, grade);
     } catch (err: unknown) {
-      const error = err as Error;
-      setError(error.message || "Failed to create an account. Try again.");
+      let message = "Failed to create an account. Try again.";
+      if (err instanceof Error) {
+        if (
+          err.message.includes('auth/email-already-in-use') ||
+          err.message.includes('Email is already in use')
+        ) {
+          message = 'An account with this email already exists. Please log in or use a different email.';
+        } else if (
+          err.message.includes('auth/weak-password') ||
+          err.message.includes('Password is too weak')
+        ) {
+          message = 'Password is too weak. Please use at least 6 characters.';
+        } else if (
+          err.message.includes('auth/invalid-email') ||
+          err.message.includes('Invalid email address')
+        ) {
+          message = 'Please enter a valid email address.';
+        } else {
+          message = err.message;
+        }
+      }
+      setError(message);
     } finally {
       setIsLoading(false);
     }

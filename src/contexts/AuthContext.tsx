@@ -213,9 +213,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       console.log('Login successful:', { uid: result.user.uid });
+      // Check if user document exists in Firestore
+      const userRef = doc(db, 'users', result.user.uid);
+      const userDoc = await getDoc(userRef);
+      if (!userDoc.exists()) {
+        // User is authenticated but not registered in app DB
+        throw new Error('No account found with this email. Please sign up first.');
+      }
       const hasProfile = await checkUserProfile(result.user as User);
       console.log('Profile check after login:', { hasProfile });
-      
       if (!hasProfile) {
         console.log('Redirecting to profile setup');
         navigate('/profile-setup');

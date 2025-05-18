@@ -48,7 +48,7 @@ const SubjectDetail: React.FC = () => {
   return (
     <div className="subject-detail">
       <div className="nav-header">
-        <button className="btn-back" onClick={() => navigate('/grader')}>
+        <button className="btn-back" onClick={() => navigate('/dashboard')}>
           ← Back to Dashboard
         </button>
         <h1 className="nav-title">{subject.title}</h1>
@@ -64,7 +64,7 @@ const SubjectDetail: React.FC = () => {
               <p>{chapter.description}</p>
               <button
                 className="start-chapter-btn"
-                onClick={() => navigate(`/grader/chapter/${grade}/${subjectId}/chapter${chapter.id}`)}
+                onClick={() => navigate(`/chapter/${grade}/${subjectId}/chapter${chapter.id}`)}
               >
                 Start Chapter
               </button>

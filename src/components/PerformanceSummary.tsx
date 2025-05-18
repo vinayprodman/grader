@@ -35,7 +35,7 @@ const PerformanceSummary = () => {
         </div>
         <button
           className="btn btn-primary"
-          onClick={() => navigate('/grader')}
+          onClick={() => navigate('/dashboard')}
         >
           Return to Dashboard
         </button>
