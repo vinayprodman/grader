@@ -6,6 +6,7 @@ import { api } from '../../services/api';
 import { Quiz } from '../../types/education';
 import '../../styles/QuizResults.css';
 import Loading from '../common/Loading';
+import BackButton from '../common/BackButton';
 
 const QuizResults: React.FC = () => {
   const { quizId } = useParams();
@@ -99,9 +100,7 @@ const QuizResults: React.FC = () => {
   return (
     <div className="quiz-results">
       <div className="nav-header">
-        <button className="btn btn-ghost" onClick={handleBackToChapter}>
-          ← Back to Chapter
-        </button>
+        <BackButton to={chapterId && quiz ? `/subjects/${(quiz as any).subjectId}/chapters/${chapterId}` : '/dashboard'} label="Back to Chapter" />
         <div className="nav-title">Quiz Results</div>
       </div>
       

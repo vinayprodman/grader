@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/PerformanceSummary.css';
+import BackButton from './common/BackButton';
 
 const PerformanceSummary = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const PerformanceSummary = () => {
   return (
     <div className="performance-container">
       <div className="nav-header">
+        <BackButton to="/dashboard" label="Back to Dashboard" />
         <div className="nav-title">Quiz Summary</div>
       </div>
       <div className="card animate-slide-up" style={{ textAlign: 'center' }}>

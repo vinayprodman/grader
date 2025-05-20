@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useQuiz } from '../../contexts/QuizContext';
 import { quizData } from '../../data/quizData';
-import { ArrowLeft, Award } from 'lucide-react';
+import { Award } from 'lucide-react';
+import BackButton from '../common/BackButton';
 import '../../styles/ProgressDashboard.css';
 
 const ProgressDashboard: React.FC = () => {
@@ -31,19 +32,21 @@ const ProgressDashboard: React.FC = () => {
   
   // Most recent quiz results (limit to last 5)
   const recentResults = [...safeQuizResults]
-    .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+    .sort((a, b) => {
+      const aDate = a.completedAt ? new Date(a.completedAt).getTime() : (a.date ? new Date(a.date).getTime() : 0);
+      const bDate = b.completedAt ? new Date(b.completedAt).getTime() : (b.date ? new Date(b.date).getTime() : 0);
+      return bDate - aDate;
+    })
     .slice(0, 5);
   
   return (
     <div className="container dashboard-screen">
       <div className="dashboard-header">
-        <button className="back-button" onClick={() => navigate('/')}>
-          <ArrowLeft size={24} />
-        </button>
+        <BackButton to="/" label="Back" />
         <h1>Student Progress</h1>
       </div>
       
-      <h2>Keep up the great work, {user?.name || 'Student'}!</h2>
+      <h2>Keep up the great work, {user?.profile?.name || user?.displayName || 'Student'}!</h2>
       
       <div className="stat-cards">
         <div className="stat-card">
@@ -75,13 +78,13 @@ const ProgressDashboard: React.FC = () => {
       <div className="results-container">
         {recentResults.length > 0 ? (
           recentResults.map((result, index) => {
-            const quiz = quizData.find(q => q.id === result.quizId);
+            const quiz = quizData.find((q: any) => q.id === result.quizId);
             return (
               <div key={index} className="result-card">
                 <div className="result-header">
                   <h4>{quiz?.title || 'Quiz'}</h4>
                   <span className="result-date">
-                    {new Date(result.completedAt).toLocaleDateString()}
+                    {result.completedAt ? new Date(result.completedAt).toLocaleDateString() : (result.date ? new Date(result.date).toLocaleDateString() : '')}
                   </span>
                 </div>
                 <div className="result-score">
@@ -91,7 +94,7 @@ const ProgressDashboard: React.FC = () => {
                   <div>
                     <strong>Strengths:</strong>
                     <ul>
-                      {result.strengths.map((strength, i) => (
+                      {(result.strengths || []).map((strength: string, i: number) => (
                         <li key={i}>{strength}</li>
                       ))}
                     </ul>
@@ -99,7 +102,7 @@ const ProgressDashboard: React.FC = () => {
                   <div>
                     <strong>Areas to Improve:</strong>
                     <ul>
-                      {result.weaknesses.map((weakness, i) => (
+                      {(result.weaknesses || []).map((weakness: string, i: number) => (
                         <li key={i}>{weakness}</li>
                       ))}
                     </ul>

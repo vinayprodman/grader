@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getSubjectInfo, loadSubjectChapters } from '../../utils/dataLoader';
 import { Subject, Chapter } from '../../types/education';
 import Loading from '../common/Loading';
+import BackButton from '../common/BackButton';
 import '../../styles/SubjectDetail.css';
 
 const SubjectDetail: React.FC = () => {
@@ -20,7 +21,7 @@ const SubjectDetail: React.FC = () => {
         }
         
         // Add artificial delay to show loading animation
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
         const subjectInfo = getSubjectInfo(subjectId, grade);
         const chaptersData = await loadSubjectChapters(grade, subjectId);
@@ -48,9 +49,7 @@ const SubjectDetail: React.FC = () => {
   return (
     <div className="subject-detail">
       <div className="nav-header">
-        <button className="btn-back" onClick={() => navigate('/dashboard')}>
-          ← Back to Dashboard
-        </button>
+        <BackButton to="/dashboard" label="Back to Dashboard" />
         <h1 className="nav-title">{subject.title}</h1>
       </div>
 

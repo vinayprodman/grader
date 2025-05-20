@@ -104,13 +104,13 @@ const QuizTest: React.FC = () => {
           console.log('QuizTest: No quiz data found');
           setLoading(false);
           showNotification('Quiz not found. Please try another quiz.');
-          setTimeout(() => navigate('/dashboard'), 2000);
+          setTimeout(() => navigate('/dashboard'), 1500);
         }
       } catch (error) {
         console.error('QuizTest: Error loading quiz:', error);
         setLoading(false);
         showNotification('Error loading quiz. Please try again.');
-        setTimeout(() => navigate('/dashboard'), 2000);
+        setTimeout(() => navigate('/dashboard'), 1500);
       } finally {
         setLoading(false);
       }
@@ -276,7 +276,7 @@ const QuizTest: React.FC = () => {
       setTimeout(() => {
         document.body.removeChild(notification);
       }, 300);
-    }, 2000);
+    }, 1500);
   };
 
   if (loading) {

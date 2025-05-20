@@ -1,3 +1,40 @@
+/* Back Button Styles */
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--primary-color, #4a6ee0);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1.25rem 0.5rem 0.75rem;
+  transition: background 0.18s, color 0.18s;
+}
+.back-button:hover, .back-button:focus {
+  background: var(--gray-100, #f3f4f6);
+  color: var(--primary-dark, #3a5bc7);
+  outline: none;
+}
+.back-label {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 500;
+}
+@media (max-width: 640px) {
+  .back-button {
+    font-size: 0.98rem;
+    padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+    border-radius: 9999px;
+    background: var(--gray-50, #f9fafb);
+    box-shadow: 0 1px 4px rgba(80,120,255,0.07);
+  }
+  .back-label {
+    font-size: 0.98rem;
+  }
+}
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 :root {

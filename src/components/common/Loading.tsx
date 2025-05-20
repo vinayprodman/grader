@@ -17,7 +17,7 @@ const Loading: React.FC<LoadingProps> = ({
   dotCount = 5,
   dotSize = 8,
   dotSpacing = 8,
-  animationDuration = 3
+  animationDuration = 0.8
 }) => {
   const containerStyle: React.CSSProperties = {
     display: 'flex',

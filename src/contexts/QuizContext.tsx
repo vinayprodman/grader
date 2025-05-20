@@ -33,6 +33,9 @@ export interface QuizResult {
   date: Date;
   correctAnswers: number;
   totalQuestions: number;
+  strengths?: string[];
+  weaknesses?: string[];
+  completedAt?: string;
 }
 
 interface QuizContextType {
