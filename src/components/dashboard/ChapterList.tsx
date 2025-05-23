@@ -18,21 +18,24 @@ const ChapterList: React.FC = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold text-primary mb-6">Science Chapters</h1>
       
-      <div className="grid gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {chapters.map((chapter) => (
           <div
             key={chapter.id}
-            className={`bg-white p-4 rounded-lg shadow-md ${
-              !chapter.isLocked ? 'cursor-pointer hover:shadow-lg' : 'opacity-75'
-            } transition-shadow`}
+            className={`bg-white p-6 rounded-xl shadow-lg border border-gray-200 ${
+              !chapter.isLocked ? 'cursor-pointer hover:shadow-xl transform hover:-translate-y-1' : 'opacity-75'
+            } transition-all duration-300 ease-in-out`}
             onClick={() => handleChapterSelect(chapter)}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <BookOpen className="text-primary" size={24} />
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-primary/10 rounded-full">
+                   <BookOpen className="text-primary" size={20} />
+                </div>
+               
                 <div>
-                  <h3 className="font-semibold text-lg">{chapter.title}</h3>
-                  <p className="text-gray-600 text-sm">{chapter.description}</p>
+                  <h3 className="font-semibold text-lg text-gray-800">{chapter.title}</h3>
+                  <p className="text-gray-600 text-sm mt-1">{chapter.description}</p>
                 </div>
               </div>
               {chapter.isLocked ? (

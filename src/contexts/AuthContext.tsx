@@ -13,10 +13,11 @@ import {
   getAuth,
   GoogleAuthProvider
 } from "firebase/auth";
-import { auth, googleProvider, db } from "../firebase";
+import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import CompleteProfile from "../components/auth/CompleteProfile";
+import { progressService } from "../services/progressService";
 
 // Types
 interface UserProfile {
@@ -58,20 +59,6 @@ const createUserData = (firebaseUser: FirebaseUser, profile: UserProfile): User 
     ...firebaseUser,
     profile
   };
-};
-
-// Helper to check if core profile fields are present
-const checkHasProfile = (user: User | null): boolean => {
-  console.log('Checking profile status:', { 
-    hasUser: !!user, 
-    hasProfile: !!user?.profile,
-    profileData: user?.profile 
-  });
-  
-  if (!user || !user.profile) return false;
-  const hasRequiredFields = !!(user.profile.age && user.profile.age > 0 && user.profile.grade && user.profile.grade.trim() !== "");
-  console.log('Profile check result:', { hasRequiredFields });
-  return hasRequiredFields;
 };
 
 // Helper function to update user in Firestore
@@ -208,6 +195,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [auth]);
 
+  // Add global time tracking
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    console.log('Setting up global time tracking for user:', user.uid);
+    
+    // Start session when user logs in
+    progressService.startSession(user.uid).catch(console.error);
+
+    // Set up interval to update time spent
+    const updateInterval = setInterval(async () => {
+      try {
+        await progressService.updateTimeSpent(user.uid, 60); // Update every minute
+      } catch (error) {
+        console.error('Error updating time spent:', error);
+      }
+    }, 60000);
+
+    // Handle visibility change
+    const handleVisibilityChange = async () => {
+      console.log('Visibility changed:', document.visibilityState);
+      try {
+        if (document.visibilityState === 'hidden') {
+          await progressService.endSession(user.uid);
+        } else {
+          await progressService.startSession(user.uid);
+        }
+      } catch (error) {
+        console.error('Error in visibility change handler:', error);
+      }
+    };
+
+    // Handle before unload
+    const handleBeforeUnload = async () => {
+      console.log('Before unload event triggered');
+      try {
+        await progressService.endSession(user.uid);
+      } catch (error) {
+        console.error('Error in beforeunload handler:', error);
+      }
+    };
+
+    // Add event listeners
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Cleanup function
+    return () => {
+      console.log('Cleaning up global time tracking');
+      clearInterval(updateInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      progressService.endSession(user.uid).catch(console.error);
+    };
+  }, [user?.uid]);
+
   const login = async (email: string, password: string) => {
     console.log('Attempting login:', { email });
     try {
@@ -249,6 +292,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const profile: UserProfile = {
         name,
+        email: email,
         age,
         grade,
         createdAt: new Date().toISOString()
@@ -349,25 +393,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const handleProfileSubmit = async (ageStr: string, gradeStr: string) => {
-    if (user) {
-      try {
-        const ageNum = parseInt(ageStr || "0", 10);
-        const profile: UserProfile = {
-          name: user.displayName || '',
-          email: user.email || '',
-          age: ageNum,
-          grade: gradeStr || "",
-          createdAt: new Date().toISOString()
-        };
+    if (!user) return;
+    
+    const age = parseInt(ageStr);
+    const grade = gradeStr;
+    
+    const profile: UserProfile = {
+      name: user.profile?.name || user.displayName || '',
+      email: user.email || '',
+      age,
+      grade,
+      createdAt: user.profile?.createdAt || new Date().toISOString()
+    };
 
-        await updateUserInFirestore(user.uid, profile);
-        const updatedUser = { ...user, profile };
-        setUser(updatedUser);
-        setHasProfile(true);
-        navigate('/dashboard');
-      } catch (error: any) {
-        throw new Error(error.message || "Failed to update profile");
-      }
+    try {
+      await updateUserProfile(profile);
+      setModalOpen(false);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error updating profile:', error);
     }
   };
 

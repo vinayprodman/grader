@@ -7,6 +7,7 @@ import { progressService } from '../../services/progressService';
 import { Quiz } from '../../types/education';
 import '../../styles/QuizTest.css';
 import Loading from '../common/Loading';
+import { ChevronRight, Clock } from 'lucide-react';
 
 interface TestData {
   answers: string[];
@@ -289,69 +290,129 @@ const QuizTest: React.FC = () => {
 
   console.log('QuizTest: Rendering quiz:', { quiz, currentQuestion });
 
-  const currentQ = quiz.questions[currentQuestion];
-  const progress = ((currentQuestion + 1) / quiz.questions.length) * 100;
-
   return (
-    <div className="quiz-test-container">
-      {/* Timer at the top */}
-      <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem', margin: '1rem 0' }}>
-        Time: <span id="timer">{timerDisplay}</span>
-      </div>
-      <div className="quiz-test">
-        <div className="nav-header">
-          <div className="nav-title">{quiz.title}</div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
         
+        {/* Header for Title and Timer */}
+        <div className="quiz-header">
+          {/* Quiz Title */}
+          <div className="quiz-title-header">
+            {quiz?.title}
+          </div>
+
+          {/* Timer Section */}
+          <div className="timer-header">
+             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl">
+              <Clock className={`w-5 h-5 text-white`} />
+              </div>
+            <div className={`text-lg font-bold text-white`}>
+              {timerDisplay}
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
         <div className="progress-bar">
           <div 
             className="progress-fill" 
-            style={{ width: `${progress}%` }}
+            style={{ width: `${((currentQuestion + 1) / (quiz?.questions.length || 1)) * 100}%` }}
           />
         </div>
         
-        <div className="question-card">
-          <div className="question-text">
-            {currentQ.question}
+        {/* Question Card */}
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-8 border border-white/20">
+          <div className="mb-6">
+            {/* Progress Indicator */}
+            <div className="inline-block px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-full mb-4">
+              Question {currentQuestion + 1} of {quiz?.questions.length}
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 leading-relaxed">
+              {quiz?.questions[currentQuestion]?.question}
+            </h2>
           </div>
-          <div className="answer-options">
-            {Object.entries(currentQ.options).map(([key, value]) => (
+
+          {/* Options */}
+          <div className="space-y-4">
+            {quiz?.questions[currentQuestion]?.options && Object.entries(quiz.questions[currentQuestion].options).map(([key, value]) => {
+              const isSelected = testData.answers[currentQuestion] === key;
+              
+              let optionClass = "group relative p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-lg ";
+              
+              if (isSelected) {
+                optionClass += "border-purple-500 bg-purple-50 shadow-purple-200/50 shadow-lg";
+              } else {
+                optionClass += "border-gray-200 bg-white hover:border-purple-300 hover:bg-purple-50";
+              }
+
+              return (
+                <div
+                  key={key}
+                  className={optionClass}
+                  onClick={() => selectAnswer(key)}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
+                      isSelected
+                        ? 'bg-purple-500 text-white'
+                        : 'bg-gray-100 text-gray-600 group-hover:bg-purple-100 group-hover:text-purple-600'
+                    }`}>
+                      {key}
+                    </div>
+                    <span className="text-lg font-medium text-gray-800">
+                      {value}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="text-center">
+           {/* Previous Button */}
+           <button
+            onClick={prevQuestion}
+            disabled={currentQuestion === 0}
+            className={`inline-flex items-center px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 transform mr-4 ${
+              currentQuestion === 0
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-600 to-teal-600 text-white shadow-2xl hover:scale-105 hover:shadow-blue-500/25'
+            }`}
+            style={{ visibility: currentQuestion === 0 ? 'hidden' : 'visible' }}
+          >
+            Previous
+          </button>
+
+          {/* Next Button */}
+          <button
+            onClick={nextQuestion}
+            disabled={!testData.answers[currentQuestion]}
+            className={`inline-flex items-center px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 transform ${
+              testData.answers[currentQuestion]
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-2xl hover:scale-105 hover:shadow-purple-500/25'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            {currentQuestion === (quiz?.questions.length || 0) - 1 ? 'Finish Quiz' : 'Next Question'}
+            <ChevronRight className="ml-2 w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Global Progress Indicator */}
+        <div className="mt-8 text-center">
+          <div className="flex justify-center space-x-2">
+            {quiz?.questions.map((_, i) => (
               <div
-                key={key}
-                className={`answer-option ${
-                  testData.answers[currentQuestion] === key ? 'selected' : ''
+                key={i}
+                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                  i <= currentQuestion ? 'bg-purple-500' : 'bg-white/30'
                 }`}
-                onClick={() => selectAnswer(key)}
-              >
-                {value}
-              </div>
+              />
             ))}
           </div>
         </div>
-        
-        <div className="test-navigation">
-          <button
-            className="btn btn-secondary"
-            onClick={prevQuestion}
-            style={{ visibility: currentQuestion === 0 ? 'hidden' : 'visible' }}
-          >
-            ← Previous
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={nextQuestion}
-          >
-            {currentQuestion === quiz.questions.length - 1 ? 'Submit' : 'Next →'}
-          </button>
-        </div>
-        // For dev only need to remove
-        <button
-          className="submit-quiz-btn"
-          style={{ marginTop: '2rem', padding: '1rem 2rem', fontSize: '1.2rem', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-          onClick={handleSubmit}
-        >
-          Submit Quiz
-        </button>
       </div>
     </div>
   );

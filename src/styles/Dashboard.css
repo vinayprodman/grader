@@ -10,8 +10,8 @@
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
+  align-items: baseline;
+  padding: 1rem 0;
   margin-bottom: 2rem;
   position: sticky;
   top: 0;
@@ -23,8 +23,8 @@
 
 .logo {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  align-items: baseline;
+  gap: 0.75rem;
 }
 
 .logo h1 {
@@ -42,7 +42,8 @@
 
 .user-actions {
   display: flex;
-  gap: 1rem;
+  align-items: baseline;
+  gap: 0.75rem;
 }
 
 .profile-setup-btn {
@@ -81,63 +82,78 @@
 }
 
 .welcome-banner {
-  background: linear-gradient(135deg, var(--primary-color), #6b8cff);
-  padding: 2rem;
-  border-radius: 1rem;
-  color: white;
+  padding: 2rem 1.5rem;
   margin-bottom: 2.5rem;
-  box-shadow: 0 4px 20px rgba(74, 110, 224, 0.15);
-  animation: fadeIn 0.5s ease-out;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
+  box-shadow: var(--shadow-lg);
 }
 
 .welcome-banner h2 {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.5px;
+  margin-bottom: 0.5rem;
+  color: white;
 }
 
 .welcome-banner p {
   color: rgba(255, 255, 255, 0.9);
   font-size: 1.1rem;
+  line-height: 1.5;
 }
 
-.progress-overview {
+.stats-pods-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
   margin-bottom: 2.5rem;
 }
 
-.progress-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+.stat-pod {
+  display: flex;
+  align-items: center;
+  background-color: var(--white);
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.progress-card:hover {
+.stat-pod:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
-.progress-card h3 {
-  font-size: 1.1rem;
-  color: var(--gray-700);
-  margin-bottom: 1rem;
-}
-
-.progress-value {
-  font-size: 2rem;
-  font-weight: 700;
+.stat-pod-icon {
+  margin-right: 0.75rem;
+  padding: 0.6rem;
+  border-radius: var(--radius-lg);
+  background-color: var(--primary-lighter);
   color: var(--primary-color);
-  margin-bottom: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.progress-label {
+.stat-pod-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
   color: var(--gray-600);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.15rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-800);
 }
 
 .section-header {
@@ -299,18 +315,24 @@
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  background: var(--primary-lighter);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
-  color: var(--primary-color);
+  color: var(--gray-700);
   flex-shrink: 0;
   transition: transform 0.3s ease;
 }
 
 .subject-card:hover .subject-icon {
   transform: scale(1.1);
+}
+
+.subject-arrow-icon {
+  color: var(--gray-400);
+  margin-left: auto;
+  align-self: center;
+  flex-shrink: 0;
 }
 
 .subject-content {
@@ -384,7 +406,7 @@
     font-size: 1.5rem;
   }
   
-  .progress-overview {
+  .quiz-list {
     grid-template-columns: 1fr;
   }
 }

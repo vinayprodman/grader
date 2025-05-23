@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { BookOpen, User, LogOut, Award } from 'lucide-react';
+import { BookOpen, User, LogOut, Award, ChevronRight, TrendingUp, Target, Clock } from 'lucide-react';
 import { Subject } from '../../types/education';
 import { getSubjectInfo } from '../../utils/dataLoader.tsx';
 import { progressService } from '../../services/progressService';
@@ -20,7 +20,7 @@ const Dashboard: React.FC = () => {
   });
 
   // Set the total number of quizzes available (hardcoded for now)
-  const totalQuizzesAvailable = 15; // 5 quizzes * 3 subjects
+  // const totalQuizzesAvailable = 15; // 5 quizzes * 3 subjects -- removing as it's not used currently in stats display
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -29,9 +29,6 @@ const Dashboard: React.FC = () => {
 
         console.log('Loading dashboard for user:', user.uid);
         
-        // Start new session
-        await progressService.startSession(user.uid);
-
         // Load subjects
         const grade = user?.profile?.grade || '1';
         const subjectIds = ['math', 'science', 'english'];
@@ -54,82 +51,6 @@ const Dashboard: React.FC = () => {
     loadDashboard();
   }, [user?.uid, user?.profile?.grade]);
 
-  // Handle session cleanup
-  useEffect(() => {
-    if (!user?.uid) return;
-
-    console.log('Setting up session handlers for user:', user.uid);
-
-    const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
-      console.log('Before unload event triggered');
-      try {
-        await progressService.endSession(user.uid);
-      } catch (error) {
-        console.error('Error in beforeunload handler:', error);
-      }
-    };
-
-    const handleVisibilityChange = async () => {
-      console.log('Visibility changed:', document.visibilityState);
-      try {
-        if (document.visibilityState === 'hidden') {
-          await progressService.endSession(user.uid);
-        } else {
-          await progressService.startSession(user.uid);
-          // Reload progress when tab becomes visible again
-          const userProgress = await progressService.getUserProgress(user.uid);
-          if (userProgress) {
-            const { overallProgress, timeSpent, averageScore } = progressService.calculateProgress(userProgress);
-            setProgress({ overallProgress, timeSpent, averageScore });
-          }
-        }
-      } catch (error) {
-        console.error('Error in visibility change handler:', error);
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      console.log('Cleaning up session handlers');
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      progressService.endSession(user.uid).catch(console.error);
-    };
-  }, [user?.uid]);
-
-  // Track time spent
-  useEffect(() => {
-    if (!user?.uid) return;
-
-    let startTime = Date.now();
-    const updateInterval = setInterval(async () => {
-      const timeSpent = Math.floor((Date.now() - startTime) / 1000); // Convert to seconds
-      try {
-        await progressService.updateTimeSpent(user.uid, timeSpent);
-        // Update local state with the latest progress
-        const userProgress = await progressService.getUserProgress(user.uid);
-        if (userProgress) {
-          const { overallProgress, timeSpent, averageScore } = progressService.calculateProgress(userProgress);
-          setProgress({ overallProgress, timeSpent, averageScore });
-        }
-        startTime = Date.now(); // Reset start time after update
-      } catch (error) {
-        console.error('Error updating time spent:', error);
-      }
-    }, 60000); // Update every minute
-
-    return () => {
-      clearInterval(updateInterval);
-      // Update final time spent when component unmounts
-      if (user?.uid) {
-        const finalTimeSpent = Math.floor((Date.now() - startTime) / 1000);
-        progressService.updateTimeSpent(user.uid, finalTimeSpent).catch(console.error);
-      }
-    };
-  }, [user?.uid]);
-
   const handleSubjectClick = (subjectId: string) => {
     const grade = user?.profile?.grade || '1';
     navigate(`/subjects/${grade}/${subjectId}`);
@@ -142,9 +63,6 @@ const Dashboard: React.FC = () => {
   const handleSignOut = async () => {
     try {
       console.log('Signing out user:', user?.uid);
-      if (user?.uid) {
-        await progressService.endSession(user.uid);
-      }
       await logout();
     } catch (error) {
       console.error('Error signing out:', error);
@@ -193,21 +111,27 @@ const Dashboard: React.FC = () => {
         <p>Ready to continue your learning journey?</p>
       </div>
 
-      <div className="progress-overview">
-        <div className="progress-card">
-          <h3>Overall Progress</h3>
-          <div className="progress-value">{progress.overallProgress}%</div>
-          <div className="progress-label">Completed quizzes: {user?.uid ? progress.quizCount || 0 : 0} / {totalQuizzesAvailable}</div>
+      <div className="stats-pods-container">
+        <div className="stat-pod">
+          <div className="stat-pod-icon"><TrendingUp size={22} /></div>
+          <div className="stat-pod-content">
+            <span className="stat-label">Overall Progress</span>
+            <span className="stat-value">{progress.overallProgress}%</span>
+          </div>
         </div>
-        <div className="progress-card">
-          <h3>Average Score</h3>
-          <div className="progress-value">{progress.averageScore}%</div>
-          <div className="progress-label">Across all completed tests</div>
+        <div className="stat-pod">
+          <div className="stat-pod-icon"><Target size={22} /></div>
+          <div className="stat-pod-content">
+            <span className="stat-label">Average Score</span>
+            <span className="stat-value">{progress.averageScore}%</span>
+          </div>
         </div>
-        <div className="progress-card">
-          <h3>Time Spent</h3>
-          <div className="progress-value">{formatTimeSpent(progress.timeSpent)}</div>
-          <div className="progress-label">Total learning time this week</div>
+        <div className="stat-pod">
+          <div className="stat-pod-icon"><Clock size={22} /></div>
+          <div className="stat-pod-content">
+            <span className="stat-label">Time Spent</span>
+            <span className="stat-value">{formatTimeSpent(progress.timeSpent)}</span>
+          </div>
         </div>
       </div>
 
@@ -216,6 +140,7 @@ const Dashboard: React.FC = () => {
           <div
             key={subject.id}
             className="subject-card"
+            style={{ backgroundColor: subject.color }}
             onClick={() => handleSubjectClick(subject.id)}
           >
             <div className="subject-icon">
@@ -235,6 +160,7 @@ const Dashboard: React.FC = () => {
                 </span>
               </div>
             </div>
+            <ChevronRight size={24} className="subject-arrow-icon" />
           </div>
         ))}
       </div>

@@ -1,4 +1,4 @@
-import { BookOpen, Beaker, Book } from 'lucide-react';
+import { Calculator, FlaskConical, Library } from 'lucide-react';
 import { Subject, Chapter, Quiz } from '../types/education';
 
 // Helper function to get subject metadata
@@ -8,21 +8,24 @@ export const getSubjectInfo = (subjectId: string, grade: string): Subject => {
       id: 'math',
       title: 'Mathematics',
       description: 'Master mathematical concepts and problem-solving skills',
-      icon: <BookOpen size={24} />,
+      icon: <Calculator size={24} />,
+      color: '#E0F2FE',
       grade
     },
     science: {
       id: 'science',
       title: 'Science',
       description: 'Explore scientific concepts and natural phenomena',
-      icon: <Beaker size={24} />,
+      icon: <FlaskConical size={24} />,
+      color: '#D1FAE5',
       grade
     },
     english: {
       id: 'english',
       title: 'English',
       description: 'Develop language skills and literary understanding',
-      icon: <Book size={24} />,
+      icon: <Library size={24} />,
+      color: '#FEF3C7',
       grade
     }
   };

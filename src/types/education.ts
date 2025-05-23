@@ -22,6 +22,7 @@ export interface Chapter {
   title: string;
   description: string;
   questions: Question[];
+  isLocked?: boolean;
 }
 
 export interface Subject {
@@ -30,6 +31,7 @@ export interface Subject {
   description: string;
   icon: React.ReactNode;
   grade: string;
+  color?: string;
 }
 
 export interface Quiz {
