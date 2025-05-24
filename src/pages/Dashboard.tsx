@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFirestore } from '../hooks/useFirestore';
 import { usePerformance } from '../hooks/usePerformance';
-import type { Subject } from '../types/education';
+import type { Subject } from '../hooks/useFirestore';
 import Logo from '../components/Logo';
 import { RippleButton } from '../components/ui/ripple-button';
 import { TrendingUp, Target, Clock, ChevronRight } from 'lucide-react';
@@ -119,7 +119,7 @@ const Dashboard: React.FC = () => {
 
                 <div className="flex items-center text-sm text-gray-500 space-x-4">
                   <span className="flex items-center">
-                    📖 {(subject as any).chapters || 4} chapters
+                    📖 {subject.chapters || 4} chapters
                   </span>
                   <span className="flex items-center">
                     🎓 Grade {profile?.grade || 5}

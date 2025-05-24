@@ -18,6 +18,10 @@ interface UserData {
     theme?: string;
     notifications?: boolean;
   };
+  quizCount: number;
+  overallScore: number;
+  averageScore: number;
+  completedQuizzes: { [quizId: string]: { score: number; completedAt: string } };
 }
 
 interface AuthContextType {
@@ -64,7 +68,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 name: user.displayName || '',
                 email: user.email || '',
                 createdAt: new Date().toISOString()
-              }
+              },
+              quizCount: 0,
+              overallScore: 0,
+              averageScore: 0,
+              completedQuizzes: {}
             };
             await setDoc(doc(db, 'users', user.uid), initialData);
             setUserData(initialData);
@@ -99,7 +107,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: email,
           createdAt: new Date().toISOString(),
           ...initialProfile
-        }
+        },
+        quizCount: 0,
+        overallScore: 0,
+        averageScore: 0,
+        completedQuizzes: {}
       };
       await setDoc(doc(db, 'users', user.uid), userData);
     } catch (error) {
@@ -120,7 +132,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name: user.displayName || '',
             email: user.email || '',
             createdAt: new Date().toISOString()
-          }
+          },
+          quizCount: 0,
+          overallScore: 0,
+          averageScore: 0,
+          completedQuizzes: {}
         };
         await setDoc(doc(db, 'users', user.uid), userData);
       }

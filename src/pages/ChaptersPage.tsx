@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -28,7 +27,7 @@ const ChaptersPage: React.FC = () => {
         
         setSubjectName(subjectNames[subjectId] || 'Subject');
         
-        const chapterData = await getChapters(subjectId, user.uid);
+        const chapterData = await getChapters(subjectId);
         setChapters(chapterData);
       }
     };

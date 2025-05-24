@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react';
 import { api } from '../utils/api';
-import type { Test, Question } from '../types/education';
+import type { Quiz } from '../docs/quiz-config';
+import type { Question } from '../hooks/useFirestore';
 
 export const useQuizzes = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getTests = useCallback(async (chapterId: string): Promise<Test[]> => {
+  const getTests = useCallback(async (chapterId: string): Promise<Quiz[]> => {
     setLoading(true);
     try {
       const tests = await api.getTests(chapterId);

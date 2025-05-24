@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -20,7 +19,7 @@ const TestsPage: React.FC = () => {
         // In a real app, you would fetch this from Firestore
         setChapterName(`Chapter ${chapterId.split('-')[1] || ''}`);
         
-        const testData = await getTests(chapterId, user.uid);
+        const testData = await getTests(chapterId);
         setTests(testData);
       }
     };

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -11,7 +10,7 @@ const Index: React.FC = () => {
   const [password, setPassword] = useState('password');
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { signInWithEmail, signUpWithEmail, signInWithGoogle, adminSignIn } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -19,9 +18,11 @@ const Index: React.FC = () => {
     setLoading(true);
     try {
       if (isLogin) {
-        await signInWithEmail(email, password);
+        await signIn(email, password);
       } else {
-        await signUpWithEmail(email, password);
+        // For sign up, provide a basic initial profile
+        const initialProfile = { email: email };
+        await signUp(email, password, initialProfile);
       }
     } catch (error) {
       console.error('Authentication error:', error);
