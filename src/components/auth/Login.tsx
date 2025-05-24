@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import Loading from "../common/Loading";
 import graderLogo from "../../assets/grader_logo.png";
-
+import "../../styles/Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,41 +24,34 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
 
     try {
       await login(email, password);
-      // If login throws, error will be caught below. If not, navigation is handled in AuthContext.
+      // Navigation is handled in the AuthContext
     } catch (error) {
-      let message = 'An error occurred during sign in';
       if (error instanceof Error) {
-        if (
-          error.message.includes('auth/invalid-credential') ||
-          error.message.includes('auth/user-not-found') ||
-          error.message.includes('auth/wrong-password') ||
-          error.message.includes('No account found with this email')
-        ) {
-          message = 'Invalid email or password. Please try again or sign up if you don\'t have an account.';
-        } else {
-          message = error.message;
-        }
+        setError(error.message);
+      } else {
+        setError('An unexpected error occurred');
       }
-      setError(message);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    setError("");
     setIsLoading(true);
 
     try {
       await googleSignIn();
       navigate(from);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred during Google sign in');
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -246,4 +239,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

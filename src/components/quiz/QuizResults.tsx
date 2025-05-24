@@ -9,18 +9,17 @@ import Loading from '../common/Loading';
 import BackButton from '../common/BackButton';
 
 const QuizResults: React.FC = () => {
-  const { quizId } = useParams();
+  const { quizId, grade, subjectId, chapterId } = useParams();
   const navigate = useNavigate();
   const { getQuizResult } = useQuiz();
   const { user } = useAuth();
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [chapterId, setChapterId] = useState<string | null>(null);
 
   useEffect(() => {
     const validateAccess = async () => {
-      if (!quizId || !user) {
+      if (!quizId || !grade || !subjectId || !chapterId || !user) {
         navigate('/dashboard');
         return;
       }
@@ -29,21 +28,18 @@ const QuizResults: React.FC = () => {
         // Check if user has completed this quiz
         const result = getQuizResult(quizId);
         if (!result) {
-          console.log('QuizResults: No result found for this quiz');
           navigate('/dashboard');
           return;
         }
 
         // Check if quiz exists and get chapter ID
-        const quizData = await api.getQuiz(quizId);
+        const quizData = await api.getQuiz(grade, subjectId, chapterId, quizId);
         if (!quizData) {
-          console.log('QuizResults: Quiz not found');
           navigate('/dashboard');
           return;
         }
 
         setQuiz(quizData);
-        setChapterId(quizData.chapterId);
         setIsAuthorized(true);
       } catch (error) {
         console.error('QuizResults: Error validating access:', error);
@@ -54,14 +50,14 @@ const QuizResults: React.FC = () => {
     };
 
     validateAccess();
-  }, [quizId, user, navigate, getQuizResult]);
+  }, [quizId, grade, subjectId, chapterId, user, navigate, getQuizResult]);
 
   // Prevent going back to quiz
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
       e.preventDefault();
-      if (chapterId) {
-        navigate(`/subjects/${quiz?.subjectId}/chapters/${chapterId}`);
+      if (chapterId && quiz?.subjectId) {
+        navigate(`/subjects/${quiz.subjectId}/chapters/${chapterId}`);
       } else {
         navigate('/dashboard');
       }
@@ -79,8 +75,8 @@ const QuizResults: React.FC = () => {
     return <Loading text="Redirecting..." fullScreen />;
   }
 
-  const result = getQuizResult(quizId);
-  if (!result) {
+  const result = getQuizResult(quizId || '');
+  if (!result || !quiz) {
     navigate('/dashboard');
     return null;
   }
@@ -90,7 +86,7 @@ const QuizResults: React.FC = () => {
   const seconds = Math.floor((time % 60000) / 1000);
 
   const handleBackToChapter = () => {
-    if (chapterId) {
+    if (chapterId && quiz.subjectId) {
       navigate(`/subjects/${quiz.subjectId}/chapters/${chapterId}`);
     } else {
       navigate('/dashboard');
@@ -100,7 +96,10 @@ const QuizResults: React.FC = () => {
   return (
     <div className="quiz-results">
       <div className="nav-header">
-        <BackButton to={chapterId && quiz ? `/subjects/${(quiz as any).subjectId}/chapters/${chapterId}` : '/dashboard'} label="Back to Chapter" />
+        <BackButton 
+          to={chapterId && quiz.subjectId ? `/subjects/${quiz.subjectId}/chapters/${chapterId}` : '/dashboard'} 
+          label="Back to Chapter" 
+        />
         <div className="nav-title">Quiz Results</div>
       </div>
       
@@ -145,4 +144,4 @@ const QuizResults: React.FC = () => {
   );
 };
 
-export default QuizResults; 
+export default QuizResults;

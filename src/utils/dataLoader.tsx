@@ -1,5 +1,6 @@
 import { Calculator, FlaskConical, Library } from 'lucide-react';
 import { Subject, Chapter, Quiz } from '../types/education';
+import { notify } from './notifications';
 
 // Helper function to get subject metadata
 export const getSubjectInfo = (subjectId: string, grade: string): Subject => {
@@ -29,108 +30,161 @@ export const getSubjectInfo = (subjectId: string, grade: string): Subject => {
       grade
     }
   };
-
+  
   return subjects[subjectId as keyof typeof subjects];
 };
 
-// Helper function to load all chapters for a subject
-export const loadSubjectChapters = async (grade: string, subjectId: string): Promise<Chapter[]> => {
+export const getChapterDetails = async (grade: string, subject: string, chapterId: string): Promise<Chapter | null> => {
   try {
-    // Remove any non-numeric characters (like 'th Grade', 'st Grade', etc.) from grade
-    const numericGrade = grade.replace(/\D/g, "");
-    const module = await import(`../data/grades/grade_${numericGrade}/${subjectId}/chapters.json`);
-    return module.chapters;
-  } catch (error) {
-    console.error('Error loading subject chapters:', error);
-    return [];
-  }
-};
+    const numericGrade = grade.startsWith('grade') ? grade.replace('grade', '') : grade;
+    const modules = import.meta.glob('../data/grades/grade*/*/chapter*/chapters.json');
+    const chapterFile = `/grade_${numericGrade}/${subject}/chapters.json`;
 
-// Helper function to load a specific chapter
-export const loadChapter = async (grade: string, subjectId: string, chapterId: string): Promise<Chapter> => {
-  try {
-    // Remove any non-numeric characters from grade
-    const numericGrade = grade.replace(/\D/g, "");
-    const module = await import(`../data/grades/grade_${numericGrade}/${subjectId}/chapters.json`);
-    // Convert chapterId to number if it's in format "chapterX"
-    const numericId = chapterId.startsWith('chapter') ? parseInt(chapterId.replace('chapter', '')) : parseInt(chapterId);
-    
-    if (isNaN(numericId)) {
-      throw new Error(`Invalid chapter ID: ${chapterId}`);
+    const matchedModules = Object.entries(modules).filter(([path]) => path.includes(chapterFile));
+
+    if (matchedModules.length === 0) {
+      notify.error(`No chapter data found for grade ${grade} ${subject}`);
+      return null;
     }
 
-    const chapter = module.chapters.find((c: Chapter) => Number(c.id) === numericId);
+    const [, loader] = matchedModules[0];
+    const module = await loader() as { chapters: Chapter[] };
+    const chapter = module.chapters.find(c => c.id === chapterId);
+
     if (!chapter) {
-      throw new Error(`Chapter ${chapterId} not found`);
+      notify.error(`Chapter ${chapterId} not found`);
+      return null;
     }
+
     return chapter;
   } catch (error) {
-    console.error(`Error loading chapter ${chapterId} for ${subjectId}:`, error);
+    notify.error('Failed to load chapter details');
     throw error;
   }
 };
 
-// Helper function to load quizzes for a chapter
-export const loadChapterQuizzes = async (grade: string, subjectId: string, chapterId: string): Promise<Quiz[]> => {
+export const getQuiz = async (grade: string, subjectId: string, chapterId: string, quizId: string): Promise<Quiz | null> => {
   try {
-    // Remove any non-numeric characters from grade
-    const numericGrade = grade.replace(/\D/g, "");
-    const numericChapterId = chapterId.startsWith('chapter') ? chapterId.replace('chapter', '') : chapterId;
-    // Use a static glob for all quiz files
-    const quizModules = import.meta.glob('../data/grades/grade*/**/chapter*/quizes/quiz*.json');
-    // Build the exact directory path for the current chapter
-    const wantedDir = `/grade_${numericGrade}/${subjectId}/chapter${numericChapterId}/quizes/`;
-    // Only match quiz files that are in the exact chapter directory
-    const filteredQuizEntries = Object.entries(quizModules).filter(([path]) => {
-      // Normalize path to use forward slashes
-      const normalizedPath = path.replace(/\\/g, '/');
-      // Ensure the path contains the wantedDir and is directly inside it (not a substring match)
-      return normalizedPath.includes(wantedDir) &&
-        new RegExp(`/grade_${numericGrade}/${subjectId}/chapter${numericChapterId}/quizes/quiz\\d+\\.json$`).test(normalizedPath);
+    // Normalize parameters
+    const normalizedGrade = normalizeId(grade, 'grade_');
+    const normalizedChapterId = normalizeId(chapterId, 'chapter');
+    const normalizedQuizId = quizId.startsWith('quiz') ? quizId : `quiz${quizId}`;
+    
+    // Construct quiz path pattern
+    const quizPath = `grades/${normalizedGrade}/${subjectId}/${normalizedChapterId}/quizes/${normalizedQuizId}.json`;
+    
+    // Load all quiz modules
+    const modules = import.meta.glob('../data/grades/*/*/chapter*/quizes/quiz*.json', { eager: true });
+    
+    // Find the matching quiz file
+    const matchedModule = Object.entries(modules).find(([path]) => {
+      const normalizedPath = normalizeFilePath(path);
+      return normalizedPath.includes(quizPath);
     });
-    // Debug log: show which files are being matched
-    console.log('Matched quiz files for chapter', chapterId, ':', filteredQuizEntries.map(([path]) => path));
-    const quizPromises: Promise<Quiz>[] = filteredQuizEntries
-      .map(async ([, loader]) => {
-        const module = await loader() as { default: Quiz };
-        return module.default;
-      });
-
-    const quizzes = await Promise.all(quizPromises);
-    quizzes.sort((a, b) => Number(a.id) - Number(b.id));
-    // Remove accidental duplicates by id
-    const uniqueQuizzes = quizzes.filter(
-      (quiz, index, self) => self.findIndex(q => q.id === quiz.id) === index
-    );
-    console.log('Loaded quizzes:', uniqueQuizzes.map(q => ({ id: q.id, title: q.title })));
-    if (uniqueQuizzes.length === 0) {
-      console.warn(`No quizzes found for chapter ${chapterId} in ${subjectId}`);
-    } else {
-      console.log(`Loaded ${uniqueQuizzes.length} quizzes for chapter ${chapterId}`);
+    
+    if (!matchedModule) {
+      console.error('Quiz not found:', { grade, subjectId, chapterId, quizId, quizPath });
+      notify.error(`Quiz not found: ${quizId}`);
+      return null;
     }
-    return uniqueQuizzes;
-  } catch (error) {
-    console.error('Error loading chapter quizzes:', error);
-    throw new Error(`Failed to load quizzes for chapter ${chapterId}`);
-  }
-};
 
-export const loadQuiz = async (grade: string, subjectId: string, chapterId: string, quizId: string): Promise<Quiz> => {
-  try {
-    // Remove any non-numeric characters from grade
-    const numericGrade = grade.replace(/\D/g, "");
-    const numericChapterId = chapterId.startsWith('chapter') ? chapterId.replace('chapter', '') : chapterId;
-    const quizModules = import.meta.glob('../data/grades/grade*/**/chapter*/quizes/quiz*.json');
-    const wantedPath = `/grade_${numericGrade}/${subjectId}/chapter${numericChapterId}/quizes/quiz${quizId}.json`;
-    const entry = Object.entries(quizModules).find(([path]) => path.replace(/\\/g, '/').endsWith(wantedPath));
-    if (!entry) {
-      throw new Error(`Quiz file not found for ${wantedPath}`);
-    }
-    const [, loader] = entry;
-    const module = await loader() as { default: Quiz };
-    return module.default;
+    return (matchedModule[1] as { default: Quiz }).default;
   } catch (error) {
     console.error('Error loading quiz:', error);
-    throw new Error('Failed to load quiz');
+    notify.error('Failed to load quiz');
+    throw error;
   }
 };
+
+export const getQuizzes = async (grade: string, subjectId: string, chapterId: string): Promise<Quiz[]> => {
+  try {
+    // Normalize parameters
+    const normalizedGrade = normalizeId(grade, 'grade_');
+    const normalizedChapterId = normalizeId(chapterId, 'chapter');
+    
+    // Construct quiz directory pattern
+    const quizDirPattern = `grades/${normalizedGrade}/${subjectId}/${normalizedChapterId}/quizes`;
+    
+    // Load all quiz modules
+    const quizModules = import.meta.glob('../data/grades/*/*/chapter*/quizes/quiz*.json', { eager: true });
+    
+    // Filter and map quizzes
+    const filteredQuizzes = Object.entries(quizModules)
+      .filter(([path]) => {
+        const normalizedPath = normalizeFilePath(path);
+        return normalizedPath.includes(quizDirPattern);
+      })
+      .map(([, module]) => (module as { default: Quiz }).default)
+      .sort((a, b) => Number(a.id) - Number(b.id));
+
+    if (filteredQuizzes.length === 0) {
+      console.warn('No quizzes found:', { grade, subjectId, chapterId });
+      notify.warning(`No quizzes found for chapter ${chapterId}`);
+      return [];
+    }
+
+    // Remove duplicates
+    return filteredQuizzes.filter((quiz, index, self) => 
+      index === self.findIndex(q => q.id === quiz.id)
+    );
+  } catch (error) {
+    console.error('Error loading quizzes:', error);
+    notify.error('Failed to load quizzes');
+    throw error;
+  }
+};
+
+// Helper for path normalization
+const normalizeId = (id: string, prefix: string): string => {
+  return id.startsWith(prefix) ? id : `${prefix}${id}`;
+};
+
+// Helper for file path normalization
+const normalizeFilePath = (path: string): string => {
+  return path.replace(/\\/g, '/');
+};
+
+export const loadSubjectChapters = async (grade: string, subject: string): Promise<Chapter[]> => {
+  try {
+    const normalizedGrade = normalizeId(grade, 'grade_');
+    const modules = import.meta.glob('../data/grades/*/*/chapters.json', { eager: true });
+    const chapterFile = `../data/grades/${normalizedGrade}/${subject}/chapters.json`;
+
+    const matchedModule = Object.entries(modules).find(([path]) => 
+      normalizeFilePath(path).endsWith(normalizeFilePath(chapterFile))
+    );
+
+    if (!matchedModule) {
+      notify.warning(`No chapters found for grade ${grade} ${subject}`);
+      return [];
+    }
+
+    const [, module] = matchedModule;
+    return (module as { default: { chapters: Chapter[] } }).default.chapters;
+  } catch (error) {
+    notify.error('Failed to load chapters');
+    console.error('Error loading chapters:', error);
+    throw error;
+  }
+};
+
+export const loadChapter = async (grade: string, subject: string, chapterId: string): Promise<Chapter | null> => {
+  try {
+    const chapters = await loadSubjectChapters(grade, subject);
+    const chapter = chapters.find(c => c.id.toString() === chapterId.toString());
+    
+    if (!chapter) {
+      notify.warning(`Chapter ${chapterId} not found in ${subject} for grade ${grade}`);
+      return null;
+    }
+    
+    return chapter;
+  } catch (error) {
+    notify.error('Failed to load chapter');
+    console.error('Error loading chapter:', error);
+    throw error;
+  }
+};
+
+export const loadChapterQuizzes = getQuizzes;
+export const loadQuiz = getQuiz;

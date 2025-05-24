@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Chapter, Quiz } from '../types/education';
-import { useAuth } from './AuthContext';
 import { api } from '../services/api';
+import { useAuth } from './AuthContext';
+import { notify } from '../utils/notifications';
 
 interface SubjectContextType {
   chapters: Chapter[];
@@ -13,9 +14,15 @@ interface SubjectContextType {
   getNextQuiz: (currentQuizId: string) => Quiz | null;
 }
 
-const SubjectContext = createContext<SubjectContextType>({} as SubjectContextType);
+const SubjectContext = createContext<SubjectContextType | undefined>(undefined);
 
-export const useSubject = () => useContext(SubjectContext);
+export const useSubject = () => {
+  const context = useContext(SubjectContext);
+  if (!context) {
+    throw new Error('useSubject must be used within a SubjectProvider');
+  }
+  return context;
+};
 
 export const SubjectProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [chapters, setChapters] = useState<Chapter[]>([]);
@@ -23,77 +30,84 @@ export const SubjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [currentQuizzes, setCurrentQuizzes] = useState<Quiz[]>([]);
   const { user } = useAuth();
 
+  // Load user progress from localStorage when component mounts
   useEffect(() => {
-    // Load user progress from localStorage or database
     if (user) {
-      const savedProgress = localStorage.getItem(`quizProgress_${user.uid}`);
-      if (savedProgress) {
-        setChapters(JSON.parse(savedProgress));
+      try {
+        const savedProgress = localStorage.getItem(`quizProgress_${user.uid}`);
+        if (savedProgress) {
+          const parsedProgress = JSON.parse(savedProgress);
+          if (Array.isArray(parsedProgress)) {
+            setChapters(parsedProgress);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading progress:', error);
+        notify.error('Failed to load your progress');
       }
     }
   }, [user]);
 
+  // Load quizzes when current chapter changes
   useEffect(() => {
-    // Load quizzes when current chapter changes
     if (currentChapter && user) {
-      api.getChapterQuizzes('6', 'science', currentChapter.id.toString())
-        .then(quizzes => setCurrentQuizzes(quizzes))
-        .catch(error => console.error('Error loading quizzes:', error));
+      const loadQuizzes = async () => {
+        try {
+          const quizzes = await api.getChapterQuizzes('6', 'science', currentChapter.id);
+          setCurrentQuizzes(quizzes);
+        } catch (error) {
+          console.error('Error loading quizzes:', error);
+          notify.error('Failed to load quizzes');
+        }
+      };
+
+      loadQuizzes();
     }
   }, [currentChapter, user]);
 
   const unlockChapter = (chapterId: string) => {
     setChapters(prevChapters => {
-      const newChapters = prevChapters.map(chapter => {
-        if (chapter.id.toString() === chapterId) {
-          return { ...chapter, isLocked: false };
-        }
-        return chapter;
-      });
+      const newChapters = prevChapters.map(chapter => 
+        chapter.id.toString() === chapterId ? { ...chapter, isLocked: false } : chapter
+      );
       
       if (user) {
         localStorage.setItem(`quizProgress_${user.uid}`, JSON.stringify(newChapters));
       }
+      
       return newChapters;
     });
   };
 
   const unlockQuiz = (chapterId: string, quizId: string) => {
     setCurrentQuizzes(prevQuizzes => {
-      const newQuizzes = prevQuizzes.map(quiz => {
-        if (quiz.id.toString() === quizId) {
-          return { ...quiz, isLocked: false };
-        }
-        return quiz;
-      });
-      
+      const newQuizzes = prevQuizzes.map(quiz =>
+        quiz.id.toString() === quizId ? { ...quiz, isLocked: false } : quiz
+      );
+
       if (user) {
-        localStorage.setItem(`quizProgress_${user.uid}`, JSON.stringify(newQuizzes));
+        const key = `quizProgress_${user.uid}_${chapterId}`;
+        localStorage.setItem(key, JSON.stringify(newQuizzes));
       }
+
       return newQuizzes;
     });
   };
 
   const getNextQuiz = (currentQuizId: string): Quiz | null => {
-    if (!currentQuizzes.length) return null;
-    
-    const currentIndex = currentQuizzes.findIndex(quiz => quiz.id.toString() === currentQuizId);
-    if (currentIndex === -1 || currentIndex === currentQuizzes.length - 1) return null;
-    
-    return currentQuizzes[currentIndex + 1];
+    const currentIndex = currentQuizzes.findIndex(quiz => quiz.id === currentQuizId);
+    return currentIndex < currentQuizzes.length - 1 ? currentQuizzes[currentIndex + 1] : null;
   };
 
-  return (
-    <SubjectContext.Provider value={{
-      chapters,
-      currentChapter,
-      currentQuizzes,
-      setCurrentChapter,
-      unlockChapter,
-      unlockQuiz,
-      getNextQuiz
-    }}>
-      {children}
-    </SubjectContext.Provider>
-  );
+  const value = {
+    chapters,
+    currentChapter,
+    currentQuizzes,
+    setCurrentChapter,
+    unlockChapter,
+    unlockQuiz,
+    getNextQuiz,
+  };
+
+  return <SubjectContext.Provider value={value}>{children}</SubjectContext.Provider>;
 };

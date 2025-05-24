@@ -8,25 +8,29 @@ import '../../styles/Quiz.css';
 import Loading from '../common/Loading';
 
 const QuizStartContent: React.FC = () => {
-  const { currentQuiz, totalQuestions } = useQuiz();
+  const { currentQuiz } = useQuiz();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { quizId } = useParams<{ quizId: string }>();
+  const { grade, subjectId, chapterId, quizId } = useParams<{
+    grade: string;
+    subjectId: string;
+    chapterId: string;
+    quizId: string;
+  }>();
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   
   useEffect(() => {
     const validateAccess = async () => {
-      if (!quizId || !user) {
+      if (!quizId || !user || !grade || !subjectId || !chapterId) {
         navigate('/dashboard');
         return;
       }
 
       try {
         // Check if quiz exists
-        const quizData = await api.getQuiz(quizId);
+        const quizData = await api.getQuiz(grade, subjectId, chapterId, quizId);
         if (!quizData) {
-          console.log('QuizStart: Quiz not found');
           navigate('/dashboard');
           return;
         }
@@ -36,7 +40,6 @@ const QuizStartContent: React.FC = () => {
         if (savedState) {
           const { isComplete } = JSON.parse(savedState);
           if (isComplete) {
-            console.log('QuizStart: Quiz already completed');
             navigate(`/quiz-results/${quizId}`);
             return;
           }
@@ -52,7 +55,7 @@ const QuizStartContent: React.FC = () => {
     };
 
     validateAccess();
-  }, [quizId, user, navigate]);
+  }, [quizId, user, grade, subjectId, chapterId, navigate]);
   
   if (loading) {
     return <Loading text="Loading quiz..." fullScreen />;
@@ -63,12 +66,15 @@ const QuizStartContent: React.FC = () => {
   }
   
   const handleStartQuiz = () => {
-    navigate(`/quiz/${quizId}`);
+    navigate(`/quiz/${grade}/${subjectId}/${chapterId}/${quizId}`);
   };
   
   const handleBackToDashboard = () => {
     navigate('/dashboard');
   };
+
+  const totalQuestions = currentQuiz.questions?.length || 0;
+  const timeLimit = currentQuiz.timeLimit || 5;
   
   return (
     <div className="container start-screen">
@@ -84,12 +90,12 @@ const QuizStartContent: React.FC = () => {
           <span className="label">Questions</span>
         </div>
         <div className="info-item">
-          <span className="value">5</span>
+          <span className="value">{timeLimit}</span>
           <span className="label">Minutes</span>
         </div>
         <div className="info-item">
-          <span className="value">₹{currentQuiz.price}</span>
-          <span className="label">Price</span>
+          <span className="value">{currentQuiz.difficulty}</span>
+          <span className="label">Difficulty</span>
         </div>
       </div>
       

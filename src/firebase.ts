@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, browserLocalPersistence, setPersistence } from "firebase/auth";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { notify } from './utils/notifications';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzCeiPaiDSsnggHDHkTnxgFW6wG1gBShU",
@@ -19,11 +20,8 @@ const db = getFirestore(app);
 
 // Set auth persistence
 setPersistence(auth, browserLocalPersistence)
-  .then(() => {
-    console.log("Auth persistence set to LOCAL");
-  })
-  .catch((error) => {
-    console.error("Auth persistence error:", error);
+  .catch(() => {
+    notify.error("Failed to set authentication persistence. You may need to log in more frequently.");
   });
 
 // Configure Google Auth Provider
@@ -34,14 +32,11 @@ googleProvider.setCustomParameters({
 
 // Enable Firestore persistence
 enableIndexedDbPersistence(db)
-  .then(() => {
-    console.log("Firestore persistence enabled");
-  })
   .catch((err) => {
     if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+      notify.warning('Multiple tabs open, offline data may not be available in all tabs.');
     } else if (err.code === 'unimplemented') {
-      console.warn('The current browser does not support persistence.');
+      notify.warning('Your browser doesn\'t support offline data storage.');
     }
   });
 

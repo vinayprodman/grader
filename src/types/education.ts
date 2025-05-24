@@ -43,6 +43,9 @@ export interface Quiz {
   difficulty: 'easy' | 'medium' | 'hard';
   isLocked: boolean;
   requiredScore: number;
+  chapterId: string;
+  subjectId: string;
+  grade: string;
 }
 
 export interface UserProgress {

@@ -26,7 +26,6 @@ const SubjectDetail: React.FC = () => {
           throw new Error('Missing required parameters');
         }
         
-        console.log('Loading subject with params:', { grade, subjectId });
 
         await new Promise(resolve => setTimeout(resolve, 500));
         

@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { BookOpen, User, LogOut, Award, ChevronRight, TrendingUp, Target, Clock } from 'lucide-react';
 import { Subject } from '../../types/education';
-import { getSubjectInfo } from '../../utils/dataLoader.tsx';
+import { getSubjectInfo } from '../../utils/dataLoader';
 import { progressService } from '../../services/progressService';
+import { notify } from '../../utils/notifications';
 import Loading from '../common/Loading';
 import '../../styles/Dashboard.css';
 
@@ -19,15 +20,10 @@ const Dashboard: React.FC = () => {
     averageScore: 0
   });
 
-  // Set the total number of quizzes available (hardcoded for now)
-  // const totalQuizzesAvailable = 15; // 5 quizzes * 3 subjects -- removing as it's not used currently in stats display
-
   useEffect(() => {
     const loadDashboard = async () => {
       try {
         if (!user?.uid) return;
-
-        console.log('Loading dashboard for user:', user.uid);
         
         // Load subjects
         const grade = user?.profile?.grade || '1';
@@ -42,7 +38,7 @@ const Dashboard: React.FC = () => {
           setProgress({ overallProgress, timeSpent, averageScore });
         }
       } catch (error) {
-        console.error('Error loading dashboard:', error);
+        notify.error('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
@@ -62,10 +58,10 @@ const Dashboard: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
-      console.log('Signing out user:', user?.uid);
       await logout();
+      notify.success('Successfully signed out');
     } catch (error) {
-      console.error('Error signing out:', error);
+      notify.error('Failed to sign out');
     }
   };
 
@@ -140,10 +136,9 @@ const Dashboard: React.FC = () => {
           <div
             key={subject.id}
             className="subject-card"
-            style={{ backgroundColor: subject.color }}
             onClick={() => handleSubjectClick(subject.id)}
           >
-            <div className="subject-icon">
+            <div className="subject-icon" style={{ backgroundColor: subject.color }}>
               {subject.icon}
             </div>
             <div className="subject-content">

@@ -49,32 +49,15 @@ const Signup: React.FC = () => {
     }
 
     try {
-      setError("");
       setIsLoading(true);
       await register(email, password, name, age, grade);
-    } catch (err: unknown) {
-      let message = "Failed to create an account. Try again.";
-      if (err instanceof Error) {
-        if (
-          err.message.includes('auth/email-already-in-use') ||
-          err.message.includes('Email is already in use')
-        ) {
-          message = 'An account with this email already exists. Please log in or use a different email.';
-        } else if (
-          err.message.includes('auth/weak-password') ||
-          err.message.includes('Password is too weak')
-        ) {
-          message = 'Password is too weak. Please use at least 6 characters.';
-        } else if (
-          err.message.includes('auth/invalid-email') ||
-          err.message.includes('Invalid email address')
-        ) {
-          message = 'Please enter a valid email address.';
-        } else {
-          message = err.message;
-        }
+      // Navigation and notifications are handled in AuthContext
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Failed to create an account. Try again.");
       }
-      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -82,12 +65,15 @@ const Signup: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      setError("");
       setIsLoading(true);
       await googleSignIn();
-    } catch (err: unknown) {
-      const error = err as Error;
-      setError(error.message || "Failed to sign in with Google");
+      // Navigation and notifications are handled in AuthContext
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Failed to sign in with Google");
+      }
     } finally {
       setIsLoading(false);
     }
