@@ -1,0 +1,29 @@
+{
+  "id": "quiz1",
+  "name": "Science Quiz 1",
+  "description": "Basic science quiz",
+  "questions": [
+    {
+      "id": "q1",
+      "text": "What is the boiling point of water?",
+      "options": [
+        { "id": "o1", "text": "90°C" },
+        { "id": "o2", "text": "100°C" },
+        { "id": "o3", "text": "110°C" }
+      ],
+      "correctOptionId": "o2",
+      "explanation": "Water boils at 100°C."
+    },
+    {
+      "id": "q2",
+      "text": "What is the chemical symbol for water?",
+      "options": [
+        { "id": "o1", "text": "H2O" },
+        { "id": "o2", "text": "O2" },
+        { "id": "o3", "text": "CO2" }
+      ],
+      "correctOptionId": "o1",
+      "explanation": "The chemical symbol for water is H2O."
+    }
+  ]
+}

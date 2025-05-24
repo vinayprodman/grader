@@ -1,108 +1,112 @@
-import React from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { QuizProvider } from './contexts/QuizContext';
-import Landing from './components/Landing';
-import Login from './components/auth/Login';
-import Signup from './components/auth/Signup';
-import Dashboard from './components/dashboard/Dashboard';
-import ProfileSetup from './components/auth/ProfileSetup';
-import SubjectDetail from './components/subjects/SubjectDetail';
-import ChapterDetail from './components/chapters/ChapterDetail.tsx';
-import QuizTest from './components/quiz/QuizTest';
-import QuizResults from './components/quiz/QuizResults';
-import PerformanceSummary from './components/PerformanceSummary';
-import './App.css';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { QuizProvider } from "./context/QuizContext";
+import { useAuth } from "./context/AuthContext";
 
+// Pages
+import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import ProfileSetup from "./pages/ProfileSetup";
+import Dashboard from "./pages/Dashboard";
+import ChaptersPage from "./pages/ChaptersPage";
+import TestsPage from "./pages/TestsPage";
+import TestPage from "./pages/TestPage";
+import TestResultsPage from "./pages/TestResultsPage";
+import NotFound from "./pages/NotFound";
+
+const queryClient = new QueryClient();
+
+// Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
-  const location = useLocation();
-
-  if (!user) {
-    // Preserve the attempted URL for redirecting back after login
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div>Loading...</div>;
   }
-
+  
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  
   return <>{children}</>;
 };
 
-const App: React.FC = () => {
-  return (
-    <AuthProvider>
-      <QuizProvider>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+const AppRoutes = () => (
+  <Routes>
+    <Route path="/" element={<LandingPage />} />
+    <Route path="/login" element={<LoginPage />} />
+    <Route path="/signup" element={<SignupPage />} />
+    <Route 
+      path="/profile-setup" 
+      element={
+        <ProtectedRoute>
+          <ProfileSetup />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/dashboard" 
+      element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/subjects/:subjectId/chapters" 
+      element={
+        <ProtectedRoute>
+          <ChaptersPage />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/subjects/:subjectId/chapters/:chapterId/tests" 
+      element={
+        <ProtectedRoute>
+          <TestsPage />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/tests/:testId" 
+      element={
+        <ProtectedRoute>
+          <TestPage />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/test-results/:testId" 
+      element={
+        <ProtectedRoute>
+          <TestResultsPage />
+        </ProtectedRoute>
+      } 
+    />
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
 
-          {/* Protected routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile-setup"
-            element={
-              <ProtectedRoute>
-                <ProfileSetup />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/subjects/:grade/:subjectId"
-            element={
-              <ProtectedRoute>
-                <SubjectDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chapter/:grade/:subjectId/:chapterId"
-            element={
-              <ProtectedRoute>
-                <ChapterDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/quiz/:grade/:subjectId/:chapterId/:quizId"
-            element={
-              <ProtectedRoute>
-                <QuizTest />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/quiz-results/:quizId"
-            element={
-              <ProtectedRoute>
-                <QuizResults />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/performance"
-            element={
-              <ProtectedRoute>
-                <PerformanceSummary />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Fallback route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        <ToastContainer />
-      </QuizProvider>
-    </AuthProvider>
-  );
-};
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <QuizProvider>
+            <Toaster />
+            <Sonner />
+            <AppRoutes />
+          </QuizProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
