@@ -1,0 +1,5 @@
+flask
+firebase-admin   # server-side SDK
+gunicorn         # prod WSGI runner (optional but recommended)
+python-dotenv    # nice for local env vars
+flask-cors      # for CORS support

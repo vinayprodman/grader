@@ -1,0 +1,268 @@
+[
+  {
+    "id": "quiz1",
+    "grade": "6",
+    "subjectId": "english",
+    "chapterId": "advanced",
+    "name": "Advanced Topics \u2013 Quiz 1",
+    "description": "Quiz 1 on Advanced Topics",
+    "duration": 15,
+    "totalQuestions": 10,
+    "locked": false,
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Is 5 > 1?",
+        "options": [
+          "Yes",
+          "No",
+          "Maybe",
+          "Not sure"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is Yes."
+      },
+      {
+        "id": "q2",
+        "question": "What is 4 + 9?",
+        "options": [
+          "1",
+          "18",
+          "10",
+          "13"
+        ],
+        "correctIndex": 3,
+        "explanation": "Because the correct answer is 13."
+      },
+      {
+        "id": "q3",
+        "question": "What is 6 \u00d7 1?",
+        "options": [
+          "2",
+          "12",
+          "13",
+          "6"
+        ],
+        "correctIndex": 3,
+        "explanation": "Because the correct answer is 6."
+      },
+      {
+        "id": "q4",
+        "question": "Is 5 > 4?",
+        "options": [
+          "Yes",
+          "No",
+          "Maybe",
+          "Not sure"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is Yes."
+      },
+      {
+        "id": "q5",
+        "question": "What is 8 \u00d7 3?",
+        "options": [
+          "24",
+          "10",
+          "3",
+          "14"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is 24."
+      },
+      {
+        "id": "q6",
+        "question": "What is 8 \u00d7 8?",
+        "options": [
+          "64",
+          "11",
+          "18",
+          "19"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is 64."
+      },
+      {
+        "id": "q7",
+        "question": "What is 3 \u00d7 9?",
+        "options": [
+          "11",
+          "3",
+          "27",
+          "17"
+        ],
+        "correctIndex": 2,
+        "explanation": "Because the correct answer is 27."
+      },
+      {
+        "id": "q8",
+        "question": "What is 7 + 1?",
+        "options": [
+          "8",
+          "20",
+          "4",
+          "5"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is 8."
+      },
+      {
+        "id": "q9",
+        "question": "What is 4 + 8?",
+        "options": [
+          "19",
+          "3",
+          "12",
+          "14"
+        ],
+        "correctIndex": 2,
+        "explanation": "Because the correct answer is 12."
+      },
+      {
+        "id": "q10",
+        "question": "Is 3 > 4?",
+        "options": [
+          "Yes",
+          "No",
+          "Maybe",
+          "Not sure"
+        ],
+        "correctIndex": 1,
+        "explanation": "Because the correct answer is No."
+      }
+    ]
+  },
+  {
+    "id": "quiz2",
+    "grade": "6",
+    "subjectId": "english",
+    "chapterId": "advanced",
+    "name": "Advanced Topics \u2013 Quiz 2",
+    "description": "Quiz 2 on Advanced Topics",
+    "duration": 15,
+    "totalQuestions": 10,
+    "locked": false,
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Is 7 > 5?",
+        "options": [
+          "Yes",
+          "No",
+          "Maybe",
+          "Not sure"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is Yes."
+      },
+      {
+        "id": "q2",
+        "question": "What is 9 + 6?",
+        "options": [
+          "11",
+          "19",
+          "7",
+          "15"
+        ],
+        "correctIndex": 3,
+        "explanation": "Because the correct answer is 15."
+      },
+      {
+        "id": "q3",
+        "question": "What is 6 + 9?",
+        "options": [
+          "8",
+          "10",
+          "19",
+          "15"
+        ],
+        "correctIndex": 3,
+        "explanation": "Because the correct answer is 15."
+      },
+      {
+        "id": "q4",
+        "question": "What is 3 \u00d7 7?",
+        "options": [
+          "1",
+          "18",
+          "19",
+          "21"
+        ],
+        "correctIndex": 3,
+        "explanation": "Because the correct answer is 21."
+      },
+      {
+        "id": "q5",
+        "question": "What is 5 \u00d7 2?",
+        "options": [
+          "8",
+          "10",
+          "14",
+          "6"
+        ],
+        "correctIndex": 1,
+        "explanation": "Because the correct answer is 10."
+      },
+      {
+        "id": "q6",
+        "question": "What is 9 \u00d7 4?",
+        "options": [
+          "2",
+          "36",
+          "12",
+          "6"
+        ],
+        "correctIndex": 1,
+        "explanation": "Because the correct answer is 36."
+      },
+      {
+        "id": "q7",
+        "question": "What is 7 \u00d7 4?",
+        "options": [
+          "2",
+          "18",
+          "11",
+          "28"
+        ],
+        "correctIndex": 3,
+        "explanation": "Because the correct answer is 28."
+      },
+      {
+        "id": "q8",
+        "question": "What is 1 \u00d7 2?",
+        "options": [
+          "2",
+          "10",
+          "20",
+          "6"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is 2."
+      },
+      {
+        "id": "q9",
+        "question": "What is 9 + 7?",
+        "options": [
+          "16",
+          "17",
+          "13",
+          "8"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is 16."
+      },
+      {
+        "id": "q10",
+        "question": "What is 5 \u00d7 1?",
+        "options": [
+          "16",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndex": 2,
+        "explanation": "Because the correct answer is 5."
+      }
+    ]
+  }
+]

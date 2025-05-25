@@ -1,0 +1,268 @@
+[
+  {
+    "id": "quiz1",
+    "grade": "6",
+    "subjectId": "english",
+    "chapterId": "basics",
+    "name": "Basics \u2013 Quiz 1",
+    "description": "Quiz 1 on Basics",
+    "duration": 15,
+    "totalQuestions": 10,
+    "locked": false,
+    "questions": [
+      {
+        "id": "q1",
+        "question": "What is 8 \u00d7 5?",
+        "options": [
+          "40",
+          "17",
+          "11",
+          "6"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is 40."
+      },
+      {
+        "id": "q2",
+        "question": "Is 4 > 5?",
+        "options": [
+          "Yes",
+          "No",
+          "Maybe",
+          "Not sure"
+        ],
+        "correctIndex": 1,
+        "explanation": "Because the correct answer is No."
+      },
+      {
+        "id": "q3",
+        "question": "What is 6 \u00d7 4?",
+        "options": [
+          "24",
+          "17",
+          "6",
+          "7"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is 24."
+      },
+      {
+        "id": "q4",
+        "question": "Is 3 > 3?",
+        "options": [
+          "Yes",
+          "No",
+          "Maybe",
+          "Not sure"
+        ],
+        "correctIndex": 1,
+        "explanation": "Because the correct answer is No."
+      },
+      {
+        "id": "q5",
+        "question": "Is 8 > 2?",
+        "options": [
+          "Yes",
+          "No",
+          "Maybe",
+          "Not sure"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is Yes."
+      },
+      {
+        "id": "q6",
+        "question": "What is 4 + 7?",
+        "options": [
+          "10",
+          "11",
+          "5",
+          "6"
+        ],
+        "correctIndex": 1,
+        "explanation": "Because the correct answer is 11."
+      },
+      {
+        "id": "q7",
+        "question": "What is 4 + 2?",
+        "options": [
+          "9",
+          "11",
+          "6",
+          "14"
+        ],
+        "correctIndex": 2,
+        "explanation": "Because the correct answer is 6."
+      },
+      {
+        "id": "q8",
+        "question": "What is 7 \u00d7 9?",
+        "options": [
+          "8",
+          "19",
+          "14",
+          "63"
+        ],
+        "correctIndex": 3,
+        "explanation": "Because the correct answer is 63."
+      },
+      {
+        "id": "q9",
+        "question": "What is 6 \u00d7 6?",
+        "options": [
+          "17",
+          "3",
+          "36",
+          "12"
+        ],
+        "correctIndex": 2,
+        "explanation": "Because the correct answer is 36."
+      },
+      {
+        "id": "q10",
+        "question": "What is 9 \u00d7 3?",
+        "options": [
+          "8",
+          "17",
+          "18",
+          "27"
+        ],
+        "correctIndex": 3,
+        "explanation": "Because the correct answer is 27."
+      }
+    ]
+  },
+  {
+    "id": "quiz2",
+    "grade": "6",
+    "subjectId": "english",
+    "chapterId": "basics",
+    "name": "Basics \u2013 Quiz 2",
+    "description": "Quiz 2 on Basics",
+    "duration": 15,
+    "totalQuestions": 10,
+    "locked": false,
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Is 3 > 5?",
+        "options": [
+          "Yes",
+          "No",
+          "Maybe",
+          "Not sure"
+        ],
+        "correctIndex": 1,
+        "explanation": "Because the correct answer is No."
+      },
+      {
+        "id": "q2",
+        "question": "What is 1 + 8?",
+        "options": [
+          "9",
+          "10",
+          "11",
+          "17"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is 9."
+      },
+      {
+        "id": "q3",
+        "question": "What is 2 \u00d7 3?",
+        "options": [
+          "8",
+          "3",
+          "19",
+          "6"
+        ],
+        "correctIndex": 3,
+        "explanation": "Because the correct answer is 6."
+      },
+      {
+        "id": "q4",
+        "question": "What is 6 + 6?",
+        "options": [
+          "5",
+          "12",
+          "4",
+          "7"
+        ],
+        "correctIndex": 1,
+        "explanation": "Because the correct answer is 12."
+      },
+      {
+        "id": "q5",
+        "question": "Is 3 > 8?",
+        "options": [
+          "Yes",
+          "No",
+          "Maybe",
+          "Not sure"
+        ],
+        "correctIndex": 1,
+        "explanation": "Because the correct answer is No."
+      },
+      {
+        "id": "q6",
+        "question": "What is 2 \u00d7 8?",
+        "options": [
+          "16",
+          "18",
+          "5",
+          "7"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is 16."
+      },
+      {
+        "id": "q7",
+        "question": "What is 7 \u00d7 9?",
+        "options": [
+          "2",
+          "11",
+          "4",
+          "63"
+        ],
+        "correctIndex": 3,
+        "explanation": "Because the correct answer is 63."
+      },
+      {
+        "id": "q8",
+        "question": "What is 1 \u00d7 6?",
+        "options": [
+          "17",
+          "3",
+          "6",
+          "1"
+        ],
+        "correctIndex": 2,
+        "explanation": "Because the correct answer is 6."
+      },
+      {
+        "id": "q9",
+        "question": "What is 7 + 4?",
+        "options": [
+          "16",
+          "9",
+          "11",
+          "5"
+        ],
+        "correctIndex": 2,
+        "explanation": "Because the correct answer is 11."
+      },
+      {
+        "id": "q10",
+        "question": "Is 9 > 2?",
+        "options": [
+          "Yes",
+          "No",
+          "Maybe",
+          "Not sure"
+        ],
+        "correctIndex": 0,
+        "explanation": "Because the correct answer is Yes."
+      }
+    ]
+  }
+]

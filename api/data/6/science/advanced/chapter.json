@@ -1,0 +1,10 @@
+{
+  "id": "advanced",
+  "grade": "6",
+  "subjectId": "science",
+  "name": "Advanced Topics",
+  "description": "Advanced Topics in Science",
+  "order": 2,
+  "locked": false,
+  "tests": 2
+}

@@ -1,0 +1,10 @@
+{
+  "id": "basics",
+  "grade": "6",
+  "subjectId": "english",
+  "name": "Basics",
+  "description": "Basics in English",
+  "order": 1,
+  "locked": false,
+  "tests": 2
+}
