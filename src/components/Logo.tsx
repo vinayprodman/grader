@@ -15,7 +15,7 @@ const Logo: React.FC<LogoProps> = ({ size = 'md', withText = true }) => {
   return (
     <div className="flex items-center gap-2">
       <img 
-        src="/dist/assets/grader_logo.png" 
+        src="/grader_logo.png" 
         alt="Grader Logo"
         className={`${sizeClasses[size]} object-contain`}
       />
