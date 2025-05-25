@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { collection, query, where, getDocs, doc, getDoc, setDoc, updateDoc, orderBy, limit } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { notify } from '../utils/notifications';
+import axios from 'axios';
 
 import type { Subject as BaseSubject } from '../types/education';
 
@@ -35,9 +36,9 @@ export interface Test {
 
 export interface Question {
   id: string;
-  text: string;
+  question: string;
   options: { id: string; text: string }[];
-  correctOptionId: string;
+  correctIndex: string;
   explanation: string;
 }
 
@@ -56,7 +57,9 @@ export interface TestResult {
   }[];
 }
 
-const mockApiCall = async (data: any, delay = 500): Promise<any> => {
+// Utility type for unknown API data
+// Used only for mock/testing, not production
+const mockApiCall = async (data: unknown, delay = 500): Promise<unknown> => {
   return new Promise((resolve) => setTimeout(() => resolve(data), delay));
 };
 
@@ -64,39 +67,22 @@ export const useFirestore = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch subjects from API
   const getSubjects = useCallback(async (grade: number): Promise<Subject[]> => {
     setLoading(true);
     setError(null);
     try {
-      const subjects = [
-        {
-          id: 'math',
-          title: 'Mathematics',
-          description: 'Master mathematical concepts and problem-solving skills',
-          grade: grade.toString(),
-          color: '#E0F2FE',
-          icon: '📘'
-        },
-        {
-          id: 'science',
-          title: 'Science',
-          description: 'Explore scientific concepts and natural phenomena',
-          grade: grade.toString(),
-          color: '#D1FAE5',
-          icon: '🔬'
-        },
-        {
-          id: 'english',
-          title: 'English',
-          description: 'Develop language skills and literary understanding',
-          grade: grade.toString(),
-          color: '#FEF3C7',
-          icon: '📖'
-        }
-      ];
-      return await mockApiCall(subjects);
-    } catch (err: any) {
-      setError(err.message);
+      const res = await axios.get(`http://localhost:5000/${grade}/subjects`);
+      return res.data.map((item: Record<string, unknown>) => ({
+        id: item.id as string,
+        title: item.name as string,
+        description: item.description as string,
+        grade: String(grade),
+        color: (item.color as string) || "#E0F2FE",
+        icon: (item.icon as string) || "📘",
+      }));
+    } catch (err) {
+      setError((err as Error).message);
       notify.error('Failed to load subjects');
       return [];
     } finally {
@@ -104,110 +90,70 @@ export const useFirestore = () => {
     }
   }, []);
 
-  const getChapters = useCallback(async (subjectId: string): Promise<Chapter[]> => {
+  // Fetch chapters from API
+  const getChapters = useCallback(async (subjectId: string, grade: number): Promise<Chapter[]> => {
     setLoading(true);
     setError(null);
     try {
-      // Simulated API call - replace this with actual API endpoint when ready
-      const chapters: Chapter[] = [
-        {
-          id: 'chapter1',
-          name: 'Introduction',
-          description: 'Basic concepts and fundamentals',
-          subjectId,
-          order: 1,
-          locked: false,
-          tests: 2
-        },
-        {
-          id: 'chapter2',
-          name: 'Advanced Topics',
-          description: 'Complex problems and solutions',
-          subjectId,
-          order: 2,
-          locked: true,
-          tests: 3
-        }
-      ];
-      return await mockApiCall(chapters);
-    } catch (err: any) {
-      setError(err.message);
+      const res = await axios.get(`http://localhost:5000/${grade}/${subjectId}/chapters`);
+      return res.data.map((item: Record<string, unknown>) => ({
+        id: item.id as string,
+        name: item.name as string,
+        description: item.description as string,
+        subjectId,
+        order: (item.order as number) || 1,
+        locked: (item.locked as boolean) || false,
+        tests: (item.tests as number) || 0,
+      }));
+    } catch (err) {
+      setError((err as Error).message);
       return [];
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const getTests = useCallback(async (chapterId: string): Promise<Test[]> => {
+  // Fetch quizzes (tests) from API
+  const getTests = useCallback(async (grade: number, subjectId: string, chapterId: string): Promise<Test[]> => {
     setLoading(true);
     setError(null);
     try {
-      // Simulated API call - replace this with actual API endpoint when ready
-      const tests: Test[] = [
-        {
-          id: 'test1',
-          name: 'Quiz 1',
-          description: 'Basic concepts quiz',
-          chapterId,
-          subjectId: 'math',
-          duration: 30,
-          totalQuestions: 10,
-          locked: false
-        },
-        {
-          id: 'test2',
-          name: 'Quiz 2',
-          description: 'Advanced concepts quiz',
-          chapterId,
-          subjectId: 'math',
-          duration: 45,
-          totalQuestions: 15,
-          locked: true
-        }
-      ];
-      return await mockApiCall(tests);
-    } catch (err: any) {
-      setError(err.message);
+      const res = await axios.get(`http://localhost:5000/${grade}/${subjectId}/${chapterId}/quizzes`);
+      return res.data.map((item: Record<string, unknown>) => ({
+        id: item.id as string,
+        name: item.name as string,
+        description: item.description as string,
+        chapterId,
+        subjectId,
+        duration: (item.duration as number) || 30,
+        totalQuestions: (item.totalQuestions as number) || 0,
+        locked: (item.locked as boolean) || false,
+      }));
+    } catch (err) {
+      setError((err as Error).message);
       return [];
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const getQuestions = useCallback(async (testId: string): Promise<Question[]> => {
+  // Fetch questions for a quiz from API
+  const getQuestions = useCallback(async (grade: number, subjectId: string, chapterId: string, quizId: string): Promise<Question[]> => {
     setLoading(true);
     setError(null);
     try {
-      // Simulated API call - replace this with actual API endpoint when ready
-      const questions: Question[] = [
-        {
-          id: 'q1',
-          text: 'What is 2 + 2?',
-          options: [
-            { id: 'a', text: '3' },
-            { id: 'b', text: '4' },
-            { id: 'c', text: '5' },
-            { id: 'd', text: '6' }
-          ],
-          correctOptionId: 'b',
-          explanation: '2 + 2 equals 4'
-        },
-        {
-          id: 'q2',
-          text: 'What is 5 x 5?',
-          options: [
-            { id: 'a', text: '20' },
-            { id: 'b', text: '25' },
-            { id: 'c', text: '30' },
-            { id: 'd', text: '35' }
-          ],
-          correctOptionId: 'b',
-          explanation: '5 x 5 equals 25'
-        }
-      ];
-      return await mockApiCall(questions);
-    } catch (err: any) {
-      setError(err.message);
+      const res = await axios.get(`http://localhost:5000/${grade}/${subjectId}/${chapterId}/${quizId}`);
+      // Assuming res.data.questions is an array of questions
+      if (!res.data.questions) return [];
+      return res.data.questions.map((q: Record<string, unknown>) => ({
+        id: q.id as string,
+        question: q.question as string,
+        options: q.options,
+        correctIndex: q.correctIndex as string,
+        explanation: q.explanation as string,
+      }));
+    } catch (err) {
+      setError((err as Error).message);
       return [];
     } finally {
       setLoading(false);
@@ -222,8 +168,8 @@ export const useFirestore = () => {
         ...result,
         completedAt: new Date()
       });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -241,8 +187,8 @@ export const useFirestore = () => {
       }
       
       return null;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
       return null;
     } finally {
       setLoading(false);
@@ -266,8 +212,8 @@ export const useFirestore = () => {
       });
       
       return results;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
       return [];
     } finally {
       setLoading(false);

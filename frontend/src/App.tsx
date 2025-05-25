@@ -74,7 +74,7 @@ const AppRoutes = () => (
       } 
     />
     <Route 
-      path="/tests/:testId" 
+      path="/subjects/:subjectId/chapters/:chapterId/tests/:testId" 
       element={
         <ProtectedRoute>
           <TestPage />

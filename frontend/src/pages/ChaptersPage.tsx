@@ -7,33 +7,39 @@ import { RippleButton } from '../components/ui/ripple-button';
 
 const ChaptersPage: React.FC = () => {
   const { subjectId } = useParams<{ subjectId: string }>();
+  
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { getChapters, loading, error } = useFirestore();
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [subjectName, setSubjectName] = useState('');
   
   useEffect(() => {
-    const loadChapters = async () => {
-      if (user && subjectId) {
-        // For demo purposes, we set hardcoded subject names
-        // In a real app, you would fetch this from Firestore
-        const subjectNames: Record<string, string> = {
-          'math': 'Mathematics',
-          'science': 'Science',
-          'english': 'English',
-          'history': 'History'
-        };
-        
-        setSubjectName(subjectNames[subjectId] || 'Subject');
-        
-        const chapterData = await getChapters(subjectId);
-        setChapters(chapterData);
-      }
-    };
+  const loadChapters = async () => {
+    if (!user || !subjectId || !profile?.grade) return;
+
+    try {
+      const subjectNames: Record<string, string> = {
+        math: 'Mathematics',
+        science: 'Science',
+        english: 'English',
+        history: 'History',
+      };
+
+      setSubjectName(subjectNames[subjectId] || 'Subject');
+
+      const chapterData = await getChapters(subjectId, profile.grade);
+      setChapters(chapterData);
+    } catch (error) {
+      console.error("Failed to load chapters:", error);
+    }
+  };
+
+  loadChapters();
+}, [user, subjectId, profile?.grade, getChapters]);
+
     
-    loadChapters();
-  }, [user, subjectId, getChapters]);
+   
   
   // Placeholder chapters for initial display
   const placeholderChapters = [

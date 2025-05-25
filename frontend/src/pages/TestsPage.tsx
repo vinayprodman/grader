@@ -7,25 +7,22 @@ import Logo from '../components/Logo';
 const TestsPage: React.FC = () => {
   const { subjectId, chapterId } = useParams<{ subjectId: string; chapterId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { getTests, loading, error } = useFirestore();
   const [tests, setTests] = useState<Test[]>([]);
   const [chapterName, setChapterName] = useState('');
   
   useEffect(() => {
     const loadTests = async () => {
-      if (user && chapterId) {
-        // For demo, we set a hardcoded chapter name
-        // In a real app, you would fetch this from Firestore
+      if (user && chapterId && subjectId) {
         setChapterName(`Chapter ${chapterId.split('-')[1] || ''}`);
-        
-        const testData = await getTests(chapterId);
+        const testData = await getTests(profile?.grade ?? 5, subjectId, chapterId);
         setTests(testData);
       }
     };
     
     loadTests();
-  }, [user, chapterId, getTests]);
+  }, [user, chapterId, subjectId, profile?.grade, getTests]);
   
   // Placeholder tests for initial display
   const placeholderTests = [
@@ -129,7 +126,7 @@ const TestsPage: React.FC = () => {
                         </div>
                       ) : (
                         <Link 
-                          to={`/tests/${test.id}`} 
+                          to={`/subjects/${subjectId}/chapters/${chapterId}/tests/${test.id}`} 
                           className="bg-grader-green hover:bg-grader-green/90 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors"
                         >
                           Start Test

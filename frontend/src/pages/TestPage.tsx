@@ -11,16 +11,16 @@ import { useToast } from '../hooks/use-toast';
 
 interface Question {
   id: string;
-  text: string;
+  question: string;
   options: { id: string; text: string }[];
-  correctOptionId: string;
+  correctIndex: string;
   explanation: string;
 }
 
 const TestPage: React.FC = () => {
-  const { testId } = useParams<{ testId: string }>();
+  const { subjectId, chapterId, testId} = useParams<{ testId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { getQuestions } = useFirestore();
   const { addTestResult } = usePerformance();
   const { toast } = useToast();
@@ -37,15 +37,30 @@ const TestPage: React.FC = () => {
   
   useEffect(() => {
     const loadQuestions = async () => {
-      if (testId) {
-        const questionData = await getQuestions(testId);
-        setQuestions(questionData);
-        setLoading(false);
-      }
-    };
+  if (testId) {
+    const questionData = await getQuestions(profile?.grade, subjectId, chapterId, testId);
+    console.log("Loaded raw questions:", questionData);
+
+    const transformed = questionData.map((q: any, index: number) => ({
+      id: q.id || `q${index + 1}`,
+      question: q.question,
+      options: q.options.map((opt: string, idx: number) => ({
+        id: `opt${idx + 1}`,
+        text: opt
+      })),
+      correctIndex: `opt${q.correctIndex + 1}`,
+      explanation: q.explanation || ""
+    }));
+
+    setQuestions(transformed);
+    setLoading(false);
+  }
+};
+
+    
     
     loadQuestions();
-  }, [testId, getQuestions]);
+  }, [testId, getQuestions, profile?.grade, subjectId, chapterId]);
   
   useEffect(() => {
     // Auto-submit when time runs out
@@ -85,23 +100,23 @@ const TestPage: React.FC = () => {
   };
 
   const handleSubmitTest = () => {
-    // Save current answer if any
-    const finalAnswers = selectedOption 
-      ? { ...answers, [currentQuestion.id]: selectedOption }
-      : answers;
+  const finalAnswers = {
+    ...answers,
+    [currentQuestion?.id]: selectedOption || ''
+  };
 
     // Calculate score
     let correctCount = 0;
     const detailedResults = questions.map(question => {
       const userAnswer = finalAnswers[question.id];
-      const isCorrect = userAnswer === question.correctOptionId;
+      const isCorrect = userAnswer === question.correctIndex;
       if (isCorrect) correctCount++;
       
       return {
         questionId: question.id,
-        question: question.text,
+        question: question.question,
         userAnswer,
-        correctAnswer: question.correctOptionId,
+        correctAnswer: question.correctIndex,
         isCorrect,
         explanation: question.explanation,
         options: question.options
@@ -204,7 +219,7 @@ const TestPage: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-8 animate-fade-in">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              {currentQuestion.text}
+              {currentQuestion.question}
             </h2>
             
             <div className="space-y-4">
@@ -228,7 +243,7 @@ const TestPage: React.FC = () => {
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       )}
                     </div>
-                    <span className="text-lg">{option.text}</span>
+                    <span className="text-lg">{option.text }</span>
                   </div>
                 </button>
               ))}
